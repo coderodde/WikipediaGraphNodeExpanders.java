@@ -13,16 +13,19 @@ import net.coderodde.graph.pathfinding.uniform.delayed.AbstractNodeExpander;
  * @version 1.6 (Aug 6, 2016)
  */
 public class ForwardWikipediaGraphNodeExpander 
-extends AbstractNodeExpander<String> {
+extends AbstractWikipediaGraphNodeExpander {
 
+    public ForwardWikipediaGraphNodeExpander(final String wikipediaUrl) {
+        super(wikipediaUrl);
+    }
+    
     @Override
     public List<String> expand(String node) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return baseGetNeighbors(node, true);
     }
 
     @Override
     public boolean isValidNode(String node) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return false;
     }
-    
 }

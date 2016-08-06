@@ -1,7 +1,6 @@
 package net.coderodde.wikipedia.graph.expansion;
 
 import java.util.List;
-import net.coderodde.graph.pathfinding.uniform.delayed.AbstractNodeExpander;
 
 /**
  * This class implements a backward node expander in the Wikipedia article 
@@ -13,15 +12,21 @@ import net.coderodde.graph.pathfinding.uniform.delayed.AbstractNodeExpander;
  * @version 1.6 (Aug 6, 2016)
  */
 public class BackwardWikipediaGraphNodeExpander 
-extends AbstractNodeExpander<String> {
-
+extends AbstractWikipediaGraphNodeExpander {
+    
+    public BackwardWikipediaGraphNodeExpander(final String wikipediaUrl) {
+        super(wikipediaUrl);
+    }
+    
     @Override
-    public List<String> expand(String node) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public List<String> expand(final String node) {
+        return baseGetNeighbors(node, false);
     }
 
     @Override
-    public boolean isValidNode(String node) {
+    public boolean isValidNode(final String node) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    
 }
