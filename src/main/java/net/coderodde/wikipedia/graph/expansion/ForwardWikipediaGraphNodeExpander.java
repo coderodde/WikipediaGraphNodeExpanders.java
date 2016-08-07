@@ -1,7 +1,6 @@
 package net.coderodde.wikipedia.graph.expansion;
 
 import java.util.List;
-import net.coderodde.graph.pathfinding.uniform.delayed.AbstractNodeExpander;
 
 /**
  * This class implements a forward node expander in the Wikipedia article graph.
@@ -22,10 +21,5 @@ extends AbstractWikipediaGraphNodeExpander {
     @Override
     public List<String> expand(String node) {
         return baseGetNeighbors(node, true);
-    }
-
-    @Override
-    public boolean isValidNode(String node) {
-        return false;
     }
 }

@@ -18,7 +18,7 @@ import net.coderodde.graph.pathfinding.uniform.delayed.AbstractNodeExpander;
 import org.apache.commons.io.IOUtils;
 
 /**
- * This abstract class specifies some facilities shared by both forward and 
+ * This abstract class specifies the facilities shared by both forward and 
  * backward node expanders.
  * 
  * @author Rodion "rodde" Efremov
@@ -46,14 +46,10 @@ extends AbstractNodeExpander<String> {
         ENCODING_MAP.put('}', "%7D");
         ENCODING_MAP.put('?', "%3F");
     }
-    
-    private static final String BACKWARD_REQUEST_API_URL_SUFFIX = 
-            "?action=query" +
-            "&list=backlinks" +
-            "&bltitle=%s" + 
-            "&bllimit=max" + 
-            "&format=json";
 
+    /**
+     * The script URL template for expanding forward.
+     */
     private static final String FORWARD_REQUEST_API_URL_SUFFIX = 
             "?action=query" +
             "&titles=%s" + 
@@ -61,14 +57,41 @@ extends AbstractNodeExpander<String> {
             "&pllimit=max" + 
             "&format=json"; 
     
+    /**
+     * The script URL template for expanding backwards.
+     */
+    private static final String BACKWARD_REQUEST_API_URL_SUFFIX = 
+            "?action=query" +
+            "&list=backlinks" +
+            "&bltitle=%s" + 
+            "&bllimit=max" + 
+            "&format=json";
     
+    /**
+     * The pattern for Wikipedia URLs.
+     */
     private static final Pattern WIKIPEDIA_URL_PATTERN = 
             Pattern.compile("^(https://|http://)?..+\\.wikipedia.org/wiki/.+$");
     
+    /**
+     * The HTTPS protocol prefix.
+     */
     private static final String SECURE_HTTP_PROTOCOL_PREFIX = "https://";
-    private static final String HTTP_PROTOCOL_PREFIX        = "http://";
-    private static final String WIKI_DIR_TOKEN              = "/wiki/";
-    private static final String API_SCRIPT_SCIRPT           = "/w/api.php";
+    
+    /**
+     * The HTTP protocol prefix.
+     */
+    private static final String HTTP_PROTOCOL_PREFIX = "http://";
+    
+    /**
+     * The <tt>wiki</tt> directory token.
+     */
+    private static final String WIKI_DIR_TOKEN = "/wiki/";
+    
+    /**
+     * The API script path.
+     */
+    private static final String API_SCRIPT_NAME = "/w/api.php";
     
     /**
      * Caches the basic Wikipedia article URL. For example, the basic URL of 
@@ -83,20 +106,33 @@ extends AbstractNodeExpander<String> {
      */
     private final String apiUrl;
 
+    /**
+     * Constructs a graph node expander for the language subgraph specified in
+     * the input URL.
+     * 
+     * @param wikipediaUrl the entire Wikipedia article URL.
+     */
     protected AbstractWikipediaGraphNodeExpander(String wikipediaUrl) {
+        final String originalWikipediaUrl = wikipediaUrl;
+        
         Objects.requireNonNull(wikipediaUrl,
                                "The input Wikipedia article is null.");
         
         if (!WIKIPEDIA_URL_PATTERN.matcher(wikipediaUrl).matches()) {
             throw new IllegalArgumentException(
                     "[INPUT ERROR] The input URL is not a valid Wikipedia " +
-                    "article URL: \"" + wikipediaUrl + "\".");
+                    "article URL: \"" + originalWikipediaUrl + "\".");
         }
         
         wikipediaUrl = removeProtocolPrefix(wikipediaUrl);
-        this.apiUrl   = constructAPIURL(wikipediaUrl);
         
-        System.out.println(apiUrl);
+        if (wikipediaUrl.contains("://")) {
+            throw new IllegalArgumentException(
+                    "[INPUT ERROR] The input URL specifies unknown protocol: " +
+                    "\"" + originalWikipediaUrl + "\".");
+        }
+        
+        this.apiUrl   = constructAPIURL(wikipediaUrl);
         this.basicUrl = wikipediaUrl.
                         substring(0, wikipediaUrl.indexOf(WIKI_DIR_TOKEN));
     }
@@ -113,9 +149,12 @@ extends AbstractNodeExpander<String> {
         return basicUrl;
     }
     
+    /**
+     * {@inheritDoc }
+     */
     @Override
     public boolean isValidNode(final String node) {
-        return expand(node) != null;
+        return !expand(node).isEmpty();
     }
     
     /**
@@ -130,7 +169,7 @@ extends AbstractNodeExpander<String> {
     private String constructAPIURL(final String wikipediaUrl) {
         return SECURE_HTTP_PROTOCOL_PREFIX +
                wikipediaUrl.substring(0, wikipediaUrl.indexOf(WIKI_DIR_TOKEN)) +
-               API_SCRIPT_SCIRPT;
+               API_SCRIPT_NAME;
     }
     
     /**
@@ -152,7 +191,18 @@ extends AbstractNodeExpander<String> {
         return url;
     }
     
-    protected List<String> baseGetNeighbors(final String currentTitle,
+    /**
+     * The actual implementation of the method producing the neighbors of a 
+     * graph node.
+     * 
+     * @param node    the node to expand.
+     * @param forward specifies the direction of the node expansion operation.
+     *                if {@code forward} is {@code true}, generates the child
+     *                nodes of {@code node}. Otherwise, generates the parent 
+     *                nodes of {@code node}.
+     * @return 
+     */
+    protected List<String> baseGetNeighbors(final String node,
                                             final boolean forward) {
         String jsonDataUrl;
         
@@ -161,13 +211,11 @@ extends AbstractNodeExpander<String> {
                     apiUrl + String.format(forward ?
                                                 FORWARD_REQUEST_API_URL_SUFFIX :
                                                 BACKWARD_REQUEST_API_URL_SUFFIX,
-                                           URLEncoder.encode(currentTitle,
+                                           URLEncoder.encode(node,
                                                              "UTF-8"));
         } catch (final UnsupportedEncodingException ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
-        
-        System.out.println("JSON URL: " + jsonDataUrl);
         
         String jsonText;
         
@@ -208,7 +256,7 @@ extends AbstractNodeExpander<String> {
 
             linkNameArray = mainObject.get("links").getAsJsonArray();
         } catch (NullPointerException ex) {
-            return null;
+            return linkNameList;
         }
 
         linkNameArray.forEach((element) -> {
@@ -242,7 +290,7 @@ extends AbstractNodeExpander<String> {
             JsonObject queryObject = root.get("query").getAsJsonObject();
             backLinkArray = queryObject.get("backlinks").getAsJsonArray();
         } catch (NullPointerException ex) {
-            return null;
+            return linkNameList;
         }
 
         backLinkArray.forEach((element) -> {
@@ -262,10 +310,16 @@ extends AbstractNodeExpander<String> {
         return linkNameList;
     }
     
-    private static String encodeWikipediaStyle(String s) {
-        StringBuilder sb = new StringBuilder();
+    /**
+     * Encodes some special characters using percent encoding.
+     * 
+     * @param s the string to encode.
+     * @return the encoded version of {@code s}.
+     */
+    private static String encodeWikipediaStyle(final String s) {
+        final StringBuilder sb = new StringBuilder();
 
-        for (char c : s.toCharArray()) {
+        for (final char c : s.toCharArray()) {
             String encoder = ENCODING_MAP.get(c);
 
             if (encoder != null) {
@@ -276,9 +330,5 @@ extends AbstractNodeExpander<String> {
         }
 
         return sb.toString();
-    }
-    
-    public static void main(String[] args) {
-        new BackwardWikipediaGraphNodeExpander("https://en.wikipedia.org/wiki/Disc_jockey").expand("Disc_jockey");
     }
 }

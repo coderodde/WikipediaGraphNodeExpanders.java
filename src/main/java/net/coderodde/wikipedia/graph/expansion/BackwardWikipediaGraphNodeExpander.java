@@ -22,11 +22,4 @@ extends AbstractWikipediaGraphNodeExpander {
     public List<String> expand(final String node) {
         return baseGetNeighbors(node, false);
     }
-
-    @Override
-    public boolean isValidNode(final String node) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-    
-    
 }
