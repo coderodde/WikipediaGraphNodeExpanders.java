@@ -9,9 +9,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 
@@ -241,13 +244,21 @@ extends AbstractNodeExpander<String> {
             int namespace = element.getAsJsonObject().get("ns").getAsInt();
 
             if (namespace == 0) {
-                System.out.println("yeah: " + element.toString());
-                
                 String title = element.getAsJsonObject()
                                       .get("title")
                                       .getAsString();
-
-                linkNameList.add(title);
+                
+                try {
+                    title = URLEncoder.encode(
+                                title,
+                                StandardCharsets.UTF_8.toString())
+                            .replace("+", "%20");
+                    
+                    linkNameList.add(title);
+                    
+                } catch (UnsupportedEncodingException ex) {
+                    System.err.printf("Could not URL encode \"%s\". Omitting.\n", title);
+                }
             }
         });
 
