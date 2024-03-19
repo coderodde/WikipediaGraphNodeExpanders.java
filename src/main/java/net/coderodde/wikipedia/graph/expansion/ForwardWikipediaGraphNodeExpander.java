@@ -8,8 +8,7 @@ import java.util.List;
  * <tt>B</tt> whenever asked to process <tt>A</tt>. We can say that this 
  * expander traverses each directed arc from tail to head.
  * 
- * @author Rodion "rodde" Efremov
- * @version 1.6 (Aug 6, 2016)
+ * @version 1.0.0 (Mar 19, 2024)
  */
 public class ForwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
@@ -19,7 +18,7 @@ extends AbstractWikipediaGraphNodeExpander {
     }
     
     @Override
-    public List<String> expand(String node) {
+    public List<String> generateSuccessors(String node) {
         return baseGetNeighbors(node, true);
     }
 }

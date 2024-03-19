@@ -6,62 +6,62 @@ import static org.junit.Assert.*;
 // Tests in this class require that there is connection to the Wikipedia API!
 public class ForwardWikipediaGraphNodeExpanderTest {
     
-    private ForwardWikipediaGraphNodeExpander expander;
+    private ForwardWikipediaGraphNodeExpander generateSuccessorser;
     
     @Test
     public void testExpand1() {
-        expander = 
+        generateSuccessorser = 
                 new ForwardWikipediaGraphNodeExpander(
                         "https://en.wikipedia.org/wiki/Disc_jockey");
         
-        assertEquals("en.wikipedia.org", expander.getBasicUrl());
-        assertTrue(expander.isValidNode("Disc_jockey"));
-        assertTrue(!expander.expand("Disc_jockey").isEmpty());
+        assertEquals("en.wikipedia.org", generateSuccessorser.getBasicUrl());
+        assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
+        assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
         
-        assertFalse(expander.isValidNode("Disc_jfdsfsockey"));
-        assertTrue(expander.expand("Disc_jockeyfdsfsd").isEmpty());
+        assertFalse(generateSuccessorser.isValidNode("Disc_jfdsfsockey"));
+        assertTrue(generateSuccessorser.generateSuccessors("Disc_jockeyfdsfsd").isEmpty());
     }
     
     @Test
     public void testExpand2() {    
-        expander = 
+        generateSuccessorser = 
                 new ForwardWikipediaGraphNodeExpander(
                         "https://fi.wikipedia.org/wiki/DJ");
         
-        assertEquals("fi.wikipedia.org", expander.getBasicUrl());
-        assertTrue(expander.isValidNode("DJ"));
-        assertTrue(!expander.expand("DJ").isEmpty());
+        assertEquals("fi.wikipedia.org", generateSuccessorser.getBasicUrl());
+        assertTrue(generateSuccessorser.isValidNode("DJ"));
+        assertTrue(!generateSuccessorser.generateSuccessors("DJ").isEmpty());
         
-        assertFalse(expander.isValidNode("DJJJfdsfJJ"));
-        assertTrue(expander.expand("DJJJfdsafd").isEmpty());
+        assertFalse(generateSuccessorser.isValidNode("DJJJfdsfJJ"));
+        assertTrue(generateSuccessorser.generateSuccessors("DJJJfdsafd").isEmpty());
     }
     
     @Test
     public void testExpandWithNonSecureHTTPPrefix() {
-        expander = 
+        generateSuccessorser = 
                 new ForwardWikipediaGraphNodeExpander(
                         "http://en.wikipedia.org/wiki/Disc_jockey");
         
-        assertEquals("en.wikipedia.org", expander.getBasicUrl());
-        assertTrue(expander.isValidNode("Disc_jockey"));
-        assertTrue(!expander.expand("Disc_jockey").isEmpty());
+        assertEquals("en.wikipedia.org", generateSuccessorser.getBasicUrl());
+        assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
+        assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
         
-        assertFalse(expander.isValidNode("Disc_jfdsfsockey"));
-        assertTrue(expander.expand("Disc_jockeyfdsfsd").isEmpty());
+        assertFalse(generateSuccessorser.isValidNode("Disc_jfdsfsockey"));
+        assertTrue(generateSuccessorser.generateSuccessors("Disc_jockeyfdsfsd").isEmpty());
     }
     
     @Test
     public void testExpandWithoutProtocolPrefix() {
-        expander = 
+        generateSuccessorser = 
                 new ForwardWikipediaGraphNodeExpander(
                         "en.wikipedia.org/wiki/Disc_jockey");
         
-        assertEquals("en.wikipedia.org", expander.getBasicUrl());
-        assertTrue(expander.isValidNode("Disc_jockey"));
-        assertTrue(!expander.expand("Disc_jockey").isEmpty());
+        assertEquals("en.wikipedia.org", generateSuccessorser.getBasicUrl());
+        assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
+        assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
         
-        assertFalse(expander.isValidNode("Disc_jfdsfsockey"));
-        assertTrue(expander.expand("Disc_jockeyfdsfsd").isEmpty());
+        assertFalse(generateSuccessorser.isValidNode("Disc_jfdsfsockey"));
+        assertTrue(generateSuccessorser.generateSuccessors("Disc_jockeyfdsfsd").isEmpty());
     }
     
     @Test(expected = IllegalArgumentException.class)

@@ -9,7 +9,7 @@ import java.util.List;
  * expander traverses each directed arc from head to tail.
  * 
  * @author Rodion "rodde" Efremov
- * @version 1.6 (Aug 6, 2016)
+ * @version 1.0.0 (Mar 19, 2024)
  */
 public class BackwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
@@ -19,7 +19,7 @@ extends AbstractWikipediaGraphNodeExpander {
     }
     
     @Override
-    public List<String> expand(final String node) {
+    public List<String> generateSuccessors(final String node) {
         return baseGetNeighbors(node, false);
     }
 }

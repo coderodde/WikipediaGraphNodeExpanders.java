@@ -1,5 +1,6 @@
 package net.coderodde.wikipedia.graph.expansion;
 
+import com.github.coderodde.graph.pathfinding.delayed.AbstractNodeExpander;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -9,12 +10,9 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import net.coderodde.graph.pathfinding.uniform.delayed.AbstractNodeExpander;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -27,26 +25,6 @@ import org.apache.commons.io.IOUtils;
 public abstract class AbstractWikipediaGraphNodeExpander
 extends AbstractNodeExpander<String> {
    
-    protected static final Map<Character, String> ENCODING_MAP = 
-            new HashMap<>();
-    
-    static {
-        ENCODING_MAP.put(' ', "_");
-        ENCODING_MAP.put('"', "%22");
-        ENCODING_MAP.put(';', "%3B");
-        ENCODING_MAP.put('<', "%3C");
-        ENCODING_MAP.put('>', "%3E");
-
-        ENCODING_MAP.put('?', "%3F");
-        ENCODING_MAP.put('[', "%5B");
-        ENCODING_MAP.put(']', "%5D");
-        ENCODING_MAP.put('{', "%7B");
-        ENCODING_MAP.put('|', "%7C");
-
-        ENCODING_MAP.put('}', "%7D");
-        ENCODING_MAP.put('?', "%3F");
-    }
-
     /**
      * The script URL template for expanding forward.
      */
@@ -154,7 +132,7 @@ extends AbstractNodeExpander<String> {
      */
     @Override
     public boolean isValidNode(final String node) {
-        return !expand(node).isEmpty();
+        return !generateSuccessors(node).isEmpty();
     }
     
     /**
@@ -263,11 +241,13 @@ extends AbstractNodeExpander<String> {
             int namespace = element.getAsJsonObject().get("ns").getAsInt();
 
             if (namespace == 0) {
+                System.out.println("yeah: " + element.toString());
+                
                 String title = element.getAsJsonObject()
                                       .get("title")
                                       .getAsString();
 
-                linkNameList.add(encodeWikipediaStyle(title));
+                linkNameList.add(title);
             }
         });
 
@@ -303,32 +283,10 @@ extends AbstractNodeExpander<String> {
                                       .get("title")
                                       .getAsString();
 
-                linkNameList.add(encodeWikipediaStyle(title));
+                linkNameList.add(title);
             }
         });
 
         return linkNameList;
-    }
-    
-    /**
-     * Encodes some special characters using percent encoding.
-     * 
-     * @param s the string to encode.
-     * @return the encoded version of {@code s}.
-     */
-    private static String encodeWikipediaStyle(final String s) {
-        final StringBuilder sb = new StringBuilder();
-
-        for (final char c : s.toCharArray()) {
-            String encoder = ENCODING_MAP.get(c);
-
-            if (encoder != null) {
-                sb.append(encoder);
-            } else {
-                sb.append(c);
-            }
-        }
-
-        return sb.toString();
     }
 }
