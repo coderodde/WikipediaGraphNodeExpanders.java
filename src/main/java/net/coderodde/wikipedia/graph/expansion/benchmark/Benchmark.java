@@ -6,10 +6,9 @@ import net.coderodde.wikipedia.graph.expansion.ForwardWikipediaGraphNodeExpander
 
 public final class Benchmark {
     
-    private static final String START_PAGE_TITLE = 
-            "https://en.wikipedia.org/wiki/Bugatti";
-    
     public static void main(String[] args) {
+        System.out.println("[Forward expansion]");
+        
         long start = System.currentTimeMillis();
         
         List<String> forwardLinks = 
@@ -22,16 +21,18 @@ public final class Benchmark {
         
         forwardLinks.forEach(System.out::println);
         
+        System.out.println("[Backward expansion]");
+        
         start = System.currentTimeMillis();
         
         List<String> backwardLinks = 
-                new BackwardWikipediaGraphNodeExpander(START_PAGE_TITLE)
+                new BackwardWikipediaGraphNodeExpander("en")
                         .generateSuccessors("Bugatti");
         
         end = System.currentTimeMillis();
         
         System.out.printf("Backward request in %d milliseconds.\n", end - start);
         
-        forwardLinks.forEach(System.out::println);
+        backwardLinks.forEach(System.out::println);
     }
 }

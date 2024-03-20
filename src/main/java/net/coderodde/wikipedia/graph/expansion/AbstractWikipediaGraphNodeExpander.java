@@ -10,14 +10,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 
 /**
@@ -127,7 +128,6 @@ extends AbstractNodeExpander<String> {
         String jsonText;
         
         try {
-            System.out.println("url: " + jsonDataUrl);
             jsonText = IOUtils.toString(new URL(jsonDataUrl),
                                         Charset.forName("UTF-8"));
         } catch (final IOException ex) {
@@ -158,17 +158,16 @@ extends AbstractNodeExpander<String> {
      * @param jsonText the data in JSON format.
      * @return a list of Wikipedia article titles parsed from {@code jsonText}.
      */
-    private static List<String> extractForwardLinkTitles(String jsonText) {
+    private List<String> extractForwardLinkTitles(String jsonText) {
         List<String> linkNameList = new ArrayList<>();
-        JsonArray linkNameArray;
-
+        
         try {
             Gson gson = new Gson();
+            
             JsonObject root = gson.fromJson(jsonText, JsonObject.class);
             JsonElement queryElement = root.get("query");
             JsonObject queryObject = queryElement.getAsJsonObject();
             JsonObject pagesObject = queryObject.getAsJsonObject("pages");
-            JsonArray linksArray = pagesObject.getAsJsonArray("links");
             
             Set<Entry<String, JsonElement>> set = pagesObject.entrySet();
             
@@ -198,35 +197,26 @@ extends AbstractNodeExpander<String> {
                                 .getAsJsonObject()
                                 .get("title")
                                 .getAsString();
+                try {
+                    title = URLEncoder.encode(
+                                title,
+                                StandardCharsets.UTF_8.toString())
+                            .replace("+", "_");
+                    
+                } catch (UnsupportedEncodingException ex) {
+                    System.err.printf(
+                            "Could not URL encode \"%s\". Omitting.\n", 
+                            title);
+                    
+                    return Collections.<String>emptyList();
+                }
                 
-                linkNameList.add(title);
+                linkNameList.add(constructFullWikipediaLink(title));
             }
         } catch (NullPointerException ex) {
             return linkNameList;
         }
-
-//        linkNameArray.forEach((element) -> {
-//            int namespace = element.getAsJsonObject().get("ns").getAsInt();
-//
-//            if (namespace == 0) {
-//                String title = element.getAsJsonObject()
-//                                      .get("title")
-//                                      .getAsString();
-//                
-//                try {
-//                    title = URLEncoder.encode(
-//                                title,
-//                                StandardCharsets.UTF_8.toString())
-//                            .replace("+", "%20");
-//                    
-//                    linkNameList.add(title);
-//                    
-//                } catch (UnsupportedEncodingException ex) {
-//                    System.err.printf("Could not URL encode \"%s\". Omitting.\n", title);
-//                }
-//            }
-//        });
-
+        
         return linkNameList;
     }
     
@@ -257,17 +247,26 @@ extends AbstractNodeExpander<String> {
                 if (namespace == 0) {
                     String title = element.getAsJsonObject().get("title")
                                                             .getAsString();
+                    try {
+                        title = URLEncoder.encode(
+                                    title,
+                                    StandardCharsets.UTF_8.toString())
+                                .replace("+", "_");
+                        
+                    } catch (UnsupportedEncodingException ex) {
+                        System.err.printf(
+                                "Could not URL encode \"%s\". Omitting.\n", 
+                                title);
+
+                        return Collections.<String>emptyList();
+                    }
                     
-                    title = constructFullWikipediaLink(title);
-                    
-                    linkNameList.add(title);
+                    linkNameList.add(constructFullWikipediaLink(title));
                 }
             }
         } catch (NullPointerException ex) {
             return linkNameList;
         }
-        
-        System.out.println(linkNameList.toString());
 
         return linkNameList;
     }
