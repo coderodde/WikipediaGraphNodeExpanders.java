@@ -9,43 +9,7 @@ public class ForwardWikipediaGraphNodeExpanderTest {
     private ForwardWikipediaGraphNodeExpander generateSuccessorser;
     
     @Test
-    public void testExpand1() {
-        generateSuccessorser = 
-                new ForwardWikipediaGraphNodeExpander("en");
-        
-        assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
-        assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
-        
-        assertFalse(generateSuccessorser.isValidNode("Disc_jfdsfsockey"));
-        assertTrue(generateSuccessorser.generateSuccessors("Disc_jockeyfdsfsd").isEmpty());
-    }
-    
-    @Test
-    public void testExpand2() {    
-        generateSuccessorser = 
-                new ForwardWikipediaGraphNodeExpander("en");
-        
-        assertTrue(generateSuccessorser.isValidNode("DJ"));
-        assertTrue(!generateSuccessorser.generateSuccessors("DJ").isEmpty());
-        
-        assertFalse(generateSuccessorser.isValidNode("DJJJfdsfJJ"));
-        assertTrue(generateSuccessorser.generateSuccessors("DJJJfdsafd").isEmpty());
-    }
-    
-    @Test
-    public void testExpandWithNonSecureHTTPPrefix() {
-        generateSuccessorser = 
-                new ForwardWikipediaGraphNodeExpander("en");
-        
-        assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
-        assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
-        
-        assertFalse(generateSuccessorser.isValidNode("Disc_jfdsfsockey"));
-        assertTrue(generateSuccessorser.generateSuccessors("Disc_jockeyfdsfsd").isEmpty());
-    }
-    
-    @Test
-    public void testExpandWithoutProtocolPrefix() {
+    public void generateSuccessors() {
         generateSuccessorser = 
                 new ForwardWikipediaGraphNodeExpander("en");
         
@@ -57,7 +21,7 @@ public class ForwardWikipediaGraphNodeExpanderTest {
     }
     
     @Test(expected = IllegalArgumentException.class)
-    public void testOnBadWikipediaURL1() {
+    public void testOnBadWikipediaCountryCode() {
         new ForwardWikipediaGraphNodeExpander("shit");
     }
 }

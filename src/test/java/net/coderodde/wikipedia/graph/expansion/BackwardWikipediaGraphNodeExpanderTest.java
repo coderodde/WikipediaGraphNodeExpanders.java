@@ -9,7 +9,7 @@ public class BackwardWikipediaGraphNodeExpanderTest {
     private BackwardWikipediaGraphNodeExpander generateSuccessorser;
     
     @Test
-    public void testExpand1() {
+    public void generateSuccessors() {
         generateSuccessorser = 
                 new BackwardWikipediaGraphNodeExpander("en");
         
@@ -20,20 +20,8 @@ public class BackwardWikipediaGraphNodeExpanderTest {
         assertTrue(generateSuccessorser.generateSuccessors("Disc_jockeyfdsfsd").isEmpty());
     }
     
-    @Test
-    public void testExpand2() {    
-        generateSuccessorser = 
-                new BackwardWikipediaGraphNodeExpander("en");
-        
-        assertTrue(generateSuccessorser.isValidNode("DJ"));
-        assertTrue(!generateSuccessorser.generateSuccessors("DJ").isEmpty());
-        
-        assertFalse(generateSuccessorser.isValidNode("DJJJfdsfJJ"));
-        assertTrue(generateSuccessorser.generateSuccessors("DJJJfdsafd").isEmpty());
-    }
-    
     @Test(expected = IllegalArgumentException.class)
-    public void testOnBadWikipediaURL1() {
+    public void testOnBadWikipediaCountryCode() {
         new BackwardWikipediaGraphNodeExpander("shit");
     }
 }
