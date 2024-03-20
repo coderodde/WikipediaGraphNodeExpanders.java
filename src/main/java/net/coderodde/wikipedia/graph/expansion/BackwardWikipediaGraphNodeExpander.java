@@ -14,12 +14,12 @@ import java.util.List;
 public class BackwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
     
-    public BackwardWikipediaGraphNodeExpander(final String wikipediaUrl) {
-        super(wikipediaUrl);
+    public BackwardWikipediaGraphNodeExpander(final String languageLocaleName) {
+        super(languageLocaleName);
     }
     
     @Override
     public List<String> generateSuccessors(final String node) {
-        return baseGetNeighbors(node, false);
+        return baseGetNeighbors(node, getLanguageLocaleName(), false);
     }
 }

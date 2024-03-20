@@ -1,6 +1,7 @@
 package net.coderodde.wikipedia.graph.expansion.benchmark;
 
 import java.util.List;
+import net.coderodde.wikipedia.graph.expansion.BackwardWikipediaGraphNodeExpander;
 import net.coderodde.wikipedia.graph.expansion.ForwardWikipediaGraphNodeExpander;
 
 public final class Benchmark {
@@ -12,7 +13,7 @@ public final class Benchmark {
         long start = System.currentTimeMillis();
         
         List<String> forwardLinks = 
-                new ForwardWikipediaGraphNodeExpander(START_PAGE_TITLE)
+                new ForwardWikipediaGraphNodeExpander("en")
                         .generateSuccessors("Bugatti");
         
         long end = System.currentTimeMillis();
@@ -24,7 +25,7 @@ public final class Benchmark {
         start = System.currentTimeMillis();
         
         List<String> backwardLinks = 
-                new ForwardWikipediaGraphNodeExpander(START_PAGE_TITLE)
+                new BackwardWikipediaGraphNodeExpander(START_PAGE_TITLE)
                         .generateSuccessors("Bugatti");
         
         end = System.currentTimeMillis();

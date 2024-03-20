@@ -1,7 +1,10 @@
 package net.coderodde.wikipedia.graph.expansion;
 
 import com.github.coderodde.graph.pathfinding.delayed.AbstractNodeExpander;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
@@ -11,10 +14,11 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 
@@ -52,7 +56,7 @@ extends AbstractNodeExpander<String> {
      * The pattern for Wikipedia URLs.
      */
     private static final Pattern WIKIPEDIA_URL_PATTERN = 
-            Pattern.compile("^(https://|http://)?..+\\.wikipedia.org/wiki/.+$");
+            Pattern.compile("^(https://|http://)?..\\.wikipedia.org/wiki/.+$");
     
     /**
      * The HTTPS protocol prefix.
@@ -74,12 +78,10 @@ extends AbstractNodeExpander<String> {
      */
     private static final String API_SCRIPT_NAME = "/w/api.php";
     
-    /**
-     * Caches the basic Wikipedia article URL. For example, the basic URL of 
-     * <tt>https://en.wikipedia.org/wiki/Disc_jockey</tt> is
-     * <tt>en.wikipedia.org</tt>.
-     */
-    protected final String basicUrl;
+    private final String languageLocaleName;
+    
+    private static final String API_URL_FORMAT = 
+            "https://%s.wikipedia.org/w/api.php";
     
     /**
      * Caches the textual representation of the URL pointing to the 
@@ -90,44 +92,15 @@ extends AbstractNodeExpander<String> {
     /**
      * Constructs a graph node expander for the language subgraph specified in
      * the input URL.
-     * 
-     * @param wikipediaUrl the entire Wikipedia article URL.
      */
-    protected AbstractWikipediaGraphNodeExpander(String wikipediaUrl) {
-        final String originalWikipediaUrl = wikipediaUrl;
-        
-        Objects.requireNonNull(wikipediaUrl,
-                               "The input Wikipedia article is null.");
-        
-        if (!WIKIPEDIA_URL_PATTERN.matcher(wikipediaUrl).matches()) {
-            throw new IllegalArgumentException(
-                    "[INPUT ERROR] The input URL is not a valid Wikipedia " +
-                    "article URL: \"" + originalWikipediaUrl + "\".");
-        }
-        
-        wikipediaUrl = removeProtocolPrefix(wikipediaUrl);
-        
-        if (wikipediaUrl.contains("://")) {
-            throw new IllegalArgumentException(
-                    "[INPUT ERROR] The input URL specifies unknown protocol: " +
-                    "\"" + originalWikipediaUrl + "\".");
-        }
-        
-        this.apiUrl   = constructAPIURL(wikipediaUrl);
-        this.basicUrl = wikipediaUrl.
-                        substring(0, wikipediaUrl.indexOf(WIKI_DIR_TOKEN));
+    protected AbstractWikipediaGraphNodeExpander(String languageLocaleName) {
+        checkLanguageLocaleName(languageLocaleName);
+        this.languageLocaleName = languageLocaleName;
+        this.apiUrl = constructAPIURL(languageLocaleName);
     }
     
-    /**
-     * Returns the raw Wikipedia URL. For example, for 
-     * <tt>https://en.wikipedia.org/wiki/Disc_jockey</tt>, this method will 
-     * return <tt>en.wikipedia.org</tt>. This is used for making sure that a 
-     * particular language (<tt>en</tt> in the example above) is selected.
-     * 
-     * @return the basic Wikipedia URL.
-     */
-    public String getBasicUrl() {
-        return basicUrl;
+    protected String getLanguageLocaleName() {
+        return languageLocaleName;
     }
     
     /**
@@ -147,53 +120,35 @@ extends AbstractNodeExpander<String> {
      * @param wikipediaUrl the Wikipedia URL.
      * @return full URL to Wikipedia API.
      */
-    private String constructAPIURL(final String wikipediaUrl) {
-        return SECURE_HTTP_PROTOCOL_PREFIX +
-               wikipediaUrl.substring(0, wikipediaUrl.indexOf(WIKI_DIR_TOKEN)) +
-               API_SCRIPT_NAME;
-    }
-    
-    /**
-     * If the input string {@code url} has a prefix "http://" or "https://", 
-     * removes it from the URL and returns the URL.
-     * 
-     * @param url the URL to process.
-     * @return the URL without the protocol selector.
-     */
-    private String removeProtocolPrefix(final String url) {
-        if (url.startsWith(SECURE_HTTP_PROTOCOL_PREFIX)) {
-            return url.substring(SECURE_HTTP_PROTOCOL_PREFIX.length());
-        }
-        
-        if (url.startsWith(HTTP_PROTOCOL_PREFIX)) {
-            return url.substring(HTTP_PROTOCOL_PREFIX.length());
-        }
-        
-        return url;
+    private String constructAPIURL(final String languageLocaleName) {
+        return String.format(API_URL_FORMAT, languageLocaleName);
     }
     
     /**
      * The actual implementation of the method producing the neighbors of a 
      * graph node.
      * 
-     * @param node    the node to expand.
+     * @param articleName    the node to expand.
+     * @param languageLocaleName the locale name of the language.
      * @param forward specifies the direction of the node expansion operation.
      *                if {@code forward} is {@code true}, generates the child
      *                nodes of {@code node}. Otherwise, generates the parent 
      *                nodes of {@code node}.
      * @return 
      */
-    protected List<String> baseGetNeighbors(final String node,
+    protected List<String> baseGetNeighbors(final String articleName,
+                                            final String languageLocaleName,
                                             final boolean forward) {
         String jsonDataUrl;
         
         try {
-            jsonDataUrl = 
+            jsonDataUrl =
                     apiUrl + String.format(forward ?
                                                 FORWARD_REQUEST_API_URL_SUFFIX :
                                                 BACKWARD_REQUEST_API_URL_SUFFIX,
-                                           URLEncoder.encode(node,
+                                           URLEncoder.encode(articleName,
                                                              "UTF-8"));
+            
         } catch (final UnsupportedEncodingException ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
         }
@@ -214,6 +169,16 @@ extends AbstractNodeExpander<String> {
                 extractBackwardLinkTitles(jsonText);
     }
     
+    private void checkLanguageLocaleName(String languageLocaleName) {
+        if (!Arrays.asList(Locale.getISOLanguages())
+                   .contains(languageLocaleName)) {
+            
+            throw new IllegalArgumentException(
+                    String.format("Unknown language locale name: %s.", 
+                                  languageLocaleName));
+        }
+    }
+    
     /**
      * Returns all the Wikipedia article titles that the current article links 
      * to.
@@ -226,6 +191,7 @@ extends AbstractNodeExpander<String> {
         JsonArray linkNameArray;
 
         try {
+            
             JsonObject root = new JsonParser().parse(jsonText).getAsJsonObject();
             JsonObject queryObject = root.get("query").getAsJsonObject();
             JsonObject pagesObject = queryObject.get("pages").getAsJsonObject();
@@ -264,7 +230,7 @@ extends AbstractNodeExpander<String> {
 
         return linkNameList;
     }
-
+    
     /**
      * Returns all the Wikipedia article titles that link to the current
      * article.
@@ -272,32 +238,42 @@ extends AbstractNodeExpander<String> {
      * @param jsonText the data in JSON format.
      * @return a list of Wikipedia article titles parsed from {@code jsonText}.
      */
-    private static List<String> extractBackwardLinkTitles(String jsonText) {
+    private List<String> extractBackwardLinkTitles(String jsonText) {
         List<String> linkNameList = new ArrayList<>();
-        JsonArray backLinkArray;
 
         try {
-            JsonObject root = new JsonParser().parse(jsonText).getAsJsonObject();
-            JsonObject queryObject = root.get("query").getAsJsonObject();
-            backLinkArray = queryObject.get("backlinks").getAsJsonArray();
+            Gson gson = new Gson();
+            JsonObject root = gson.fromJson(jsonText, JsonObject.class);
+            JsonElement queryElement = root.get("query");
+            JsonElement backlinksElement = 
+                    queryElement.getAsJsonObject().get("backlinks");
+            
+            JsonArray pagesArray = backlinksElement.getAsJsonArray();
+            Iterator<JsonElement> iterator = pagesArray.iterator();
+            
+            while (iterator.hasNext()) {
+                JsonElement element = iterator.next();
+                int namespace = element.getAsJsonObject().get("ns").getAsInt();
+                
+                if (namespace == 0) {
+                    String title = element.getAsJsonObject().get("title")
+                                                            .getAsString();
+                    
+                    title = constructFullWikipediaLink(title);
+                    
+                    linkNameList.add(title);
+                }
+            }
         } catch (NullPointerException ex) {
             return linkNameList;
         }
-
-        backLinkArray.forEach((element) -> {
-            int namespace = element.getAsJsonObject()
-                                   .get("ns")
-                                   .getAsInt();
-
-            if (namespace == 0) {
-                String title = element.getAsJsonObject()
-                                      .get("title")
-                                      .getAsString();
-
-                linkNameList.add(title);
-            }
-        });
+        
+        System.out.println(linkNameList.toString());
 
         return linkNameList;
+    }
+    
+    private String constructFullWikipediaLink(String title) {
+        return "https://" + languageLocaleName + ".wikipedia.org/wiki/" + title;
     }
 }

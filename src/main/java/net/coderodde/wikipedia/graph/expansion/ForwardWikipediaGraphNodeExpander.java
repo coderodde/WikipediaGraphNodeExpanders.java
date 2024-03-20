@@ -13,12 +13,12 @@ import java.util.List;
 public class ForwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
 
-    public ForwardWikipediaGraphNodeExpander(final String wikipediaUrl) {
-        super(wikipediaUrl);
+    public ForwardWikipediaGraphNodeExpander(final String languageLocaleName) {
+        super(languageLocaleName);
     }
     
     @Override
     public List<String> generateSuccessors(String node) {
-        return baseGetNeighbors(node, true);
+        return baseGetNeighbors(node, getLanguageLocaleName(), true);
     }
 }

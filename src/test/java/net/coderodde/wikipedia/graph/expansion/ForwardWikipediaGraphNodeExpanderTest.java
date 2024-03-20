@@ -11,10 +11,8 @@ public class ForwardWikipediaGraphNodeExpanderTest {
     @Test
     public void testExpand1() {
         generateSuccessorser = 
-                new ForwardWikipediaGraphNodeExpander(
-                        "https://en.wikipedia.org/wiki/Disc_jockey");
+                new ForwardWikipediaGraphNodeExpander("en");
         
-        assertEquals("en.wikipedia.org", generateSuccessorser.getBasicUrl());
         assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
         assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
         
@@ -25,10 +23,8 @@ public class ForwardWikipediaGraphNodeExpanderTest {
     @Test
     public void testExpand2() {    
         generateSuccessorser = 
-                new ForwardWikipediaGraphNodeExpander(
-                        "https://fi.wikipedia.org/wiki/DJ");
+                new ForwardWikipediaGraphNodeExpander("en");
         
-        assertEquals("fi.wikipedia.org", generateSuccessorser.getBasicUrl());
         assertTrue(generateSuccessorser.isValidNode("DJ"));
         assertTrue(!generateSuccessorser.generateSuccessors("DJ").isEmpty());
         
@@ -39,10 +35,8 @@ public class ForwardWikipediaGraphNodeExpanderTest {
     @Test
     public void testExpandWithNonSecureHTTPPrefix() {
         generateSuccessorser = 
-                new ForwardWikipediaGraphNodeExpander(
-                        "http://en.wikipedia.org/wiki/Disc_jockey");
+                new ForwardWikipediaGraphNodeExpander("en");
         
-        assertEquals("en.wikipedia.org", generateSuccessorser.getBasicUrl());
         assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
         assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
         
@@ -53,10 +47,8 @@ public class ForwardWikipediaGraphNodeExpanderTest {
     @Test
     public void testExpandWithoutProtocolPrefix() {
         generateSuccessorser = 
-                new ForwardWikipediaGraphNodeExpander(
-                        "en.wikipedia.org/wiki/Disc_jockey");
+                new ForwardWikipediaGraphNodeExpander("en");
         
-        assertEquals("en.wikipedia.org", generateSuccessorser.getBasicUrl());
         assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
         assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
         
@@ -66,28 +58,6 @@ public class ForwardWikipediaGraphNodeExpanderTest {
     
     @Test(expected = IllegalArgumentException.class)
     public void testOnBadWikipediaURL1() {
-        new ForwardWikipediaGraphNodeExpander("en.wikipedia.org");
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testOnBadWikipediaURL2() {
-        new ForwardWikipediaGraphNodeExpander("en.wikipedia.org/");
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testOnBadWikipediaURL3() {
-        new ForwardWikipediaGraphNodeExpander("en.wikipedia.org/wki");
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testOnBadWikipediaURL4() {
-        new ForwardWikipediaGraphNodeExpander(
-                "en.wikipedia.org/wki/Disc_jockey");
-    }
-    
-    @Test(expected = IllegalArgumentException.class)
-    public void testOnBadWikipediaURL5() {
-        new ForwardWikipediaGraphNodeExpander(
-                "htp://en.wikipedia.org/wiki/Disc_jockey");
+        new ForwardWikipediaGraphNodeExpander("shit");
     }
 }
