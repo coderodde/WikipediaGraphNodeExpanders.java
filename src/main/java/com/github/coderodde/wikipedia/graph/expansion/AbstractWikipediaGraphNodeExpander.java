@@ -1,4 +1,4 @@
-package net.coderodde.wikipedia.graph.expansion;
+package com.github.coderodde.wikipedia.graph.expansion;
 
 import com.github.coderodde.graph.pathfinding.delayed.AbstractNodeExpander;
 import java.io.IOException;
@@ -116,7 +116,7 @@ extends AbstractNodeExpander<String> {
      * @return the full URL to the article.
      */
     protected String constructFullWikipediaLink(String title) {
-        return String.format("https://%s\\.wikipedia\\.org/wiki/%s",
+        return String.format("https://%s.wikipedia.org/wiki/%s",
                              languageLocaleName,
                              title);
     }

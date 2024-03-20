@@ -1,5 +1,6 @@
-package net.coderodde.wikipedia.graph.expansion;
+package com.github.coderodde.wikipedia.graph.expansion;
 
+import com.github.coderodde.wikipedia.graph.expansion.BackwardWikipediaGraphNodeExpander;
 import org.junit.Test;
 import static org.junit.Assert.*;
 

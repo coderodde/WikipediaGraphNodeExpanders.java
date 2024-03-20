@@ -1,8 +1,8 @@
-package net.coderodde.wikipedia.graph.expansion.benchmark;
+package com.github.coderodde.wikipedia.graph.expansion.benchmark;
 
 import java.util.List;
-import net.coderodde.wikipedia.graph.expansion.BackwardWikipediaGraphNodeExpander;
-import net.coderodde.wikipedia.graph.expansion.ForwardWikipediaGraphNodeExpander;
+import com.github.coderodde.wikipedia.graph.expansion.BackwardWikipediaGraphNodeExpander;
+import com.github.coderodde.wikipedia.graph.expansion.ForwardWikipediaGraphNodeExpander;
 
 public final class Benchmark {
     

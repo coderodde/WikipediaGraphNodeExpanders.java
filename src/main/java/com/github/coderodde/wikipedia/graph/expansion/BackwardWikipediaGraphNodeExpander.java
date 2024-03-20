@@ -1,4 +1,4 @@
-package net.coderodde.wikipedia.graph.expansion;
+package com.github.coderodde.wikipedia.graph.expansion;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
