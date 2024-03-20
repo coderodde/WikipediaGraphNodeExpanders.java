@@ -2,23 +2,21 @@ package net.coderodde.wikipedia.graph.expansion;
 
 import com.github.coderodde.graph.pathfinding.delayed.AbstractNodeExpander;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 import org.apache.commons.io.IOUtils;
 
@@ -26,8 +24,7 @@ import org.apache.commons.io.IOUtils;
  * This abstract class specifies the facilities shared by both forward and 
  * backward node expanders.
  * 
- * @author Rodion "rodde" Efremov
- * @version 1.6 (Aug 6, 2016)
+ * @version 1.0.0 (Mar 20, 2024)
  */
 public abstract class AbstractWikipediaGraphNodeExpander
 extends AbstractNodeExpander<String> {
@@ -51,32 +48,6 @@ extends AbstractNodeExpander<String> {
             "&bltitle=%s" + 
             "&bllimit=max" + 
             "&format=json";
-    
-    /**
-     * The pattern for Wikipedia URLs.
-     */
-    private static final Pattern WIKIPEDIA_URL_PATTERN = 
-            Pattern.compile("^(https://|http://)?..\\.wikipedia.org/wiki/.+$");
-    
-    /**
-     * The HTTPS protocol prefix.
-     */
-    private static final String SECURE_HTTP_PROTOCOL_PREFIX = "https://";
-    
-    /**
-     * The HTTP protocol prefix.
-     */
-    private static final String HTTP_PROTOCOL_PREFIX = "http://";
-    
-    /**
-     * The <tt>wiki</tt> directory token.
-     */
-    private static final String WIKI_DIR_TOKEN = "/wiki/";
-    
-    /**
-     * The API script path.
-     */
-    private static final String API_SCRIPT_NAME = "/w/api.php";
     
     private final String languageLocaleName;
     
@@ -156,6 +127,7 @@ extends AbstractNodeExpander<String> {
         String jsonText;
         
         try {
+            System.out.println("url: " + jsonDataUrl);
             jsonText = IOUtils.toString(new URL(jsonDataUrl),
                                         Charset.forName("UTF-8"));
         } catch (final IOException ex) {
@@ -191,42 +163,69 @@ extends AbstractNodeExpander<String> {
         JsonArray linkNameArray;
 
         try {
+            Gson gson = new Gson();
+            JsonObject root = gson.fromJson(jsonText, JsonObject.class);
+            JsonElement queryElement = root.get("query");
+            JsonObject queryObject = queryElement.getAsJsonObject();
+            JsonObject pagesObject = queryObject.getAsJsonObject("pages");
+            JsonArray linksArray = pagesObject.getAsJsonArray("links");
             
-            JsonObject root = new JsonParser().parse(jsonText).getAsJsonObject();
-            JsonObject queryObject = root.get("query").getAsJsonObject();
-            JsonObject pagesObject = queryObject.get("pages").getAsJsonObject();
-            JsonObject mainObject  = pagesObject.entrySet()
-                                                .iterator()
-                                                .next()
-                                                .getValue()
-                                                .getAsJsonObject();
-
-            linkNameArray = mainObject.get("links").getAsJsonArray();
+            Set<Entry<String, JsonElement>> set = pagesObject.entrySet();
+            
+            JsonObject idObject = 
+                    set
+                        .iterator()
+                        .next()
+                        .getValue()
+                        .getAsJsonObject();
+            
+            JsonArray linkArray = idObject.getAsJsonArray("links");
+            
+            Iterator<JsonElement> iterator = linkArray.iterator();
+            
+            while (iterator.hasNext()) {
+                JsonElement titleElement = iterator.next();
+                
+                int namespace = 
+                        titleElement.getAsJsonObject().get("ns").getAsInt();
+                
+                if (namespace != 0) {
+                    continue;
+                }
+                
+                String title = 
+                        titleElement
+                                .getAsJsonObject()
+                                .get("title")
+                                .getAsString();
+                
+                linkNameList.add(title);
+            }
         } catch (NullPointerException ex) {
             return linkNameList;
         }
 
-        linkNameArray.forEach((element) -> {
-            int namespace = element.getAsJsonObject().get("ns").getAsInt();
-
-            if (namespace == 0) {
-                String title = element.getAsJsonObject()
-                                      .get("title")
-                                      .getAsString();
-                
-                try {
-                    title = URLEncoder.encode(
-                                title,
-                                StandardCharsets.UTF_8.toString())
-                            .replace("+", "%20");
-                    
-                    linkNameList.add(title);
-                    
-                } catch (UnsupportedEncodingException ex) {
-                    System.err.printf("Could not URL encode \"%s\". Omitting.\n", title);
-                }
-            }
-        });
+//        linkNameArray.forEach((element) -> {
+//            int namespace = element.getAsJsonObject().get("ns").getAsInt();
+//
+//            if (namespace == 0) {
+//                String title = element.getAsJsonObject()
+//                                      .get("title")
+//                                      .getAsString();
+//                
+//                try {
+//                    title = URLEncoder.encode(
+//                                title,
+//                                StandardCharsets.UTF_8.toString())
+//                            .replace("+", "%20");
+//                    
+//                    linkNameList.add(title);
+//                    
+//                } catch (UnsupportedEncodingException ex) {
+//                    System.err.printf("Could not URL encode \"%s\". Omitting.\n", title);
+//                }
+//            }
+//        });
 
         return linkNameList;
     }
