@@ -65,7 +65,7 @@ extends AbstractWikipediaGraphNodeExpander {
                 }
             }
         } catch (NullPointerException ex) {
-            return linkNameList;
+            throw new IllegalStateException("GSON failed.");
         }
 
         return linkNameList;
