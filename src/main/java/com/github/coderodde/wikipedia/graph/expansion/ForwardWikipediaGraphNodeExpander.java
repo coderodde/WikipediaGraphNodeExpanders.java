@@ -52,6 +52,10 @@ extends AbstractWikipediaGraphNodeExpander {
             
             JsonArray linkArray = idObject.getAsJsonArray("links");
             
+            if (linkArray == null) {
+                System.out.println("yeahs: " + linkNameList.size());
+            }
+            
             for (JsonElement titleElement : linkArray) {
                 int namespace = 
                         titleElement.getAsJsonObject().get("ns").getAsInt();
