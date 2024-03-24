@@ -64,17 +64,17 @@ public abstract class AbstractWikipediaGraphNodeExpander {
         this.apiUrl = constructAPIURL(languageLocaleName);
     }
     
-    public boolean isValidNode(final String node) {
-        if (closed) {
-            return true;
-        }
+    public boolean isValidNode(final String node) throws Exception {
+//        if (closed) {
+//            return true;
+//        }
         
         return !getNeighbors(node).isEmpty();
     }
     
-    public void close() {
-        closed = true;
-    }
+//    public void close() {
+//        closed = true;
+//    }
     
     /**
      * Retrieves the neighboring links targets.
@@ -83,7 +83,7 @@ public abstract class AbstractWikipediaGraphNodeExpander {
      * 
      * @return the neighboring links.
      */
-    public abstract List<String> getNeighbors(final String node);
+    public abstract List<String> getNeighbors(final String node) throws Exception;
     
     /**
      * The actual implementation of the method producing the neighbour JSON data
@@ -101,14 +101,19 @@ public abstract class AbstractWikipediaGraphNodeExpander {
                                   final boolean forward) 
             throws MalformedURLException, IOException {
         
-        final String jsonDataUrl =
-                apiUrl + String.format(forward ?
-                                            FORWARD_REQUEST_API_URL_SUFFIX :
-                                            BACKWARD_REQUEST_API_URL_SUFFIX,
-                                       URLEncoder.encode(articleName,
-                                                         "UTF-8"));
-        
-        return IOUtils.toString(new URL(jsonDataUrl), Charset.forName("UTF-8"));
+        try {
+            final String jsonDataUrl =
+                    apiUrl + String.format(forward ?
+                                                FORWARD_REQUEST_API_URL_SUFFIX :
+                                                BACKWARD_REQUEST_API_URL_SUFFIX,
+                                           URLEncoder.encode(articleName,
+                                                             "UTF-8"));
+
+            return IOUtils.toString(new URL(jsonDataUrl), 
+                                    Charset.forName("UTF-8"));
+        } catch (final Exception ex) {
+            return "";
+        }
     }
     
     /**

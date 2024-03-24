@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,11 +27,7 @@ extends AbstractWikipediaGraphNodeExpander {
     }
     
     @Override
-    public List<String> getNeighbors(final String articleTitle) {
-        if (closed) {
-            return Collections.<String>emptyList();
-        }
-        
+    public List<String> getNeighbors(final String articleTitle) throws Exception {
         try {
             final List<String> linkNameList = new ArrayList<>();
             final String jsonText = downloadJson(articleTitle, true);
@@ -71,7 +66,7 @@ extends AbstractWikipediaGraphNodeExpander {
 
                 title = URLEncoder.encode(
                         title,
-                        StandardCharsets.UTF_8.toString())
+                        "UTF-8")
                         .replace("+", "_");
 
                 linkNameList.add(constructFullWikipediaLink(title));
@@ -80,7 +75,7 @@ extends AbstractWikipediaGraphNodeExpander {
             return linkNameList;
            
         } catch (final Exception ex) {
-            throw new RuntimeException(
+            throw new Exception(
                     String.format(
                             "Forward article \"%s\" failed to expand.", 
                             articleTitle), 

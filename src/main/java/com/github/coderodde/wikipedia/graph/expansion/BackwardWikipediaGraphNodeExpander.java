@@ -27,10 +27,7 @@ extends AbstractWikipediaGraphNodeExpander {
     }
     
     @Override
-    public List<String> getNeighbors(final String articleTitle) {
-        if (closed) {
-            return Collections.<String>emptyList();
-        }
+    public List<String> getNeighbors(final String articleTitle) throws Exception {
         
         try {
             final List<String> linkNameList = new ArrayList<>();
@@ -63,7 +60,7 @@ extends AbstractWikipediaGraphNodeExpander {
             return linkNameList;
             
         } catch (final Exception ex) {
-            throw new RuntimeException(
+            throw new Exception(
                     String.format(
                             "Backward article \"%s\" failed to expand.", 
                             articleTitle), 
