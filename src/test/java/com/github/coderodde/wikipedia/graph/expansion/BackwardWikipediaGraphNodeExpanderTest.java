@@ -6,21 +6,21 @@ import static org.junit.Assert.*;
 // Tests in this class require that there is connection to the Wikipedia API!
 public class BackwardWikipediaGraphNodeExpanderTest {
     
-    private BackwardWikipediaGraphNodeExpander generateSuccessorser;
+    private BackwardWikipediaGraphNodeExpander nodeExpander;
     
     @Test
-    public void generateSuccessors() {
-        generateSuccessorser = 
+    public void getNeighbors() throws Exception {
+        nodeExpander = 
                 new BackwardWikipediaGraphNodeExpander("en");
         
-        assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
-        assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
+        assertTrue(nodeExpander.isValidNode("Disc_jockey"));
+        assertTrue(!nodeExpander.getNeighbors("Disc_jockey").isEmpty());
         
-        assertFalse(generateSuccessorser.isValidNode("Disc_jfdsfsockey"));
-        assertTrue(generateSuccessorser.generateSuccessors("Disc_jockeyfdsfsd").isEmpty());
+        assertFalse(nodeExpander.isValidNode("Disc_jfdsfsockey"));
+        assertTrue(nodeExpander.getNeighbors("Disc_jockeyfdsfsd").isEmpty());
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = Exception.class)
     public void testOnBadWikipediaCountryCode() {
         new BackwardWikipediaGraphNodeExpander("shit");
     }

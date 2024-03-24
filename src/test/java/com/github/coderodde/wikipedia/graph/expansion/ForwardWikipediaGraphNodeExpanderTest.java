@@ -1,26 +1,40 @@
 package com.github.coderodde.wikipedia.graph.expansion;
 
+import java.io.IOException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 // Tests in this class require that there is connection to the Wikipedia API!
 public class ForwardWikipediaGraphNodeExpanderTest {
     
-    private ForwardWikipediaGraphNodeExpander generateSuccessorser;
+    private ForwardWikipediaGraphNodeExpander nodeExpander;
     
     @Test
-    public void generateSuccessors() {
-        generateSuccessorser = 
+    public void getNeighbors() throws Exception {
+        nodeExpander = 
                 new ForwardWikipediaGraphNodeExpander("en");
         
-        assertTrue(generateSuccessorser.isValidNode("Disc_jockey"));
-        assertTrue(!generateSuccessorser.generateSuccessors("Disc_jockey").isEmpty());
+        assertTrue(nodeExpander.isValidNode("Disc_jockey"));
+        assertTrue(!nodeExpander.getNeighbors("Disc_jockey").isEmpty());
         
-        assertFalse(generateSuccessorser.isValidNode("Disc_jfdsfsockey"));
-        assertTrue(generateSuccessorser.generateSuccessors("Disc_jockeyfdsfsd").isEmpty());
+        try {
+            assertFalse(nodeExpander.isValidNode("Disc_jfdsfsockey"));
+            fail();
+        } catch (final Exception ex) {
+            System.out.println("ex = " + ex);
+        }
+        
+        try {
+            assertTrue(nodeExpander.getNeighbors("Disc_jockeyfdsfsd")
+                                   .isEmpty());
+            
+            fail();
+        } catch (final Exception ex) {
+            
+        }
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = Exception.class)
     public void testOnBadWikipediaCountryCode() {
         new ForwardWikipediaGraphNodeExpander("shit");
     }

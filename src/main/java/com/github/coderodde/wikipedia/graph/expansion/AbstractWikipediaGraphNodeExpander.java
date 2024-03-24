@@ -1,12 +1,12 @@
 package com.github.coderodde.wikipedia.graph.expansion;
 
-import com.github.coderodde.graph.pathfinding.delayed.AbstractNodeExpander;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import org.apache.commons.io.IOUtils;
 
@@ -16,8 +16,7 @@ import org.apache.commons.io.IOUtils;
  * 
  * @version 1.0.0 (Mar 20, 2024)
  */
-public abstract class AbstractWikipediaGraphNodeExpander
-extends AbstractNodeExpander<String> {
+public abstract class AbstractWikipediaGraphNodeExpander {
    
     /**
      * The script URL template for expanding forward.
@@ -53,20 +52,28 @@ extends AbstractNodeExpander<String> {
     /**
      * Constructs a graph node expander for the language subgraph specified in
      * the input URL.
+     * 
+     * @param languageLocaleName the ISO country code.
      */
-    protected AbstractWikipediaGraphNodeExpander(String languageLocaleName) {
+    protected AbstractWikipediaGraphNodeExpander(
+            final String languageLocaleName) {
         checkLanguageLocaleName(languageLocaleName);
         this.languageLocaleName = languageLocaleName;
         this.apiUrl = constructAPIURL(languageLocaleName);
     }
     
-    /**
-     * {@inheritDoc }
-     */
-    @Override
     public boolean isValidNode(final String node) {
-        return !generateSuccessors(node).isEmpty();
+        return !getNeighbors(node).isEmpty();
     }
+    
+    /**
+     * Retrieves the neighboring links targets.
+     * 
+     * @param node the starting node.
+     * 
+     * @return the neighboring links.
+     */
+    public abstract List<String> getNeighbors(final String node);
     
     /**
      * The actual implementation of the method producing the neighbour JSON data
@@ -78,35 +85,20 @@ extends AbstractNodeExpander<String> {
      *                nodes of {@code node}. Otherwise, generates the parent 
      *                nodes of {@code node}.
      * @return the JSON data describing the forward- or backward-links.
+     * @throws java.net.MalformedURLException if the URL is invalid.
      */
     protected String downloadJson(final String articleName,
-                                  final boolean forward) {
-        String jsonDataUrl;
+                                  final boolean forward) 
+            throws MalformedURLException, IOException {
         
-        try {
-            jsonDataUrl =
-                    apiUrl + String.format(forward ?
-                                                FORWARD_REQUEST_API_URL_SUFFIX :
-                                                BACKWARD_REQUEST_API_URL_SUFFIX,
-                                           URLEncoder.encode(articleName,
-                                                             "UTF-8"));
-            
-        } catch (final UnsupportedEncodingException ex) {
-            throw new IllegalStateException(ex.getMessage(), ex);
-        }
+        final String jsonDataUrl =
+                apiUrl + String.format(forward ?
+                                            FORWARD_REQUEST_API_URL_SUFFIX :
+                                            BACKWARD_REQUEST_API_URL_SUFFIX,
+                                       URLEncoder.encode(articleName,
+                                                         "UTF-8"));
         
-        String jsonText;
-        
-        try {
-            jsonText = IOUtils.toString(new URL(jsonDataUrl),
-                                        Charset.forName("UTF-8"));
-        } catch (final IOException ex) {
-            throw new IllegalStateException(
-                    "[I/O ERROR] Failed loading the JSON data from the " +
-                    "Wikipedia API: " + ex.getMessage(), ex);
-        }
-        
-        return jsonText;
+        return IOUtils.toString(new URL(jsonDataUrl), Charset.forName("UTF-8"));
     }
     
     /**
