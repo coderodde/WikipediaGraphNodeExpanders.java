@@ -3,17 +3,20 @@ package com.github.coderodde.wikipedia.graph.expansion.benchmark;
 import java.util.List;
 import com.github.coderodde.wikipedia.graph.expansion.BackwardWikipediaGraphNodeExpander;
 import com.github.coderodde.wikipedia.graph.expansion.ForwardWikipediaGraphNodeExpander;
+import java.io.IOException;
+import java.net.MalformedURLException;
 
 public final class Benchmark {
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws MalformedURLException, 
+                                                  IOException {
         System.out.println("[Forward expansion]");
         
         long start = System.currentTimeMillis();
         
         List<String> forwardLinks = 
                 new ForwardWikipediaGraphNodeExpander("fi")
-                        .generateSuccessors("Bugatti");
+                        .getNeighbors("Bugatti");
         
         long end = System.currentTimeMillis();
         
@@ -27,7 +30,7 @@ public final class Benchmark {
         
         List<String> backwardLinks = 
                 new BackwardWikipediaGraphNodeExpander("fi")
-                        .generateSuccessors("Bugatti");
+                        .getNeighbors("Bugatti");
         
         end = System.currentTimeMillis();
         
