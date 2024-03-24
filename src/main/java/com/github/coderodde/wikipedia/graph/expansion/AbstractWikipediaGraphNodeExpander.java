@@ -66,7 +66,7 @@ public abstract class AbstractWikipediaGraphNodeExpander {
     
     public boolean isValidNode(final String node) {
         if (closed) {
-            return false;
+            return true;
         }
         
         return !getNeighbors(node).isEmpty();

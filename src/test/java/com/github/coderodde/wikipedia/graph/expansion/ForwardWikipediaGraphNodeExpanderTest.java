@@ -1,6 +1,5 @@
 package com.github.coderodde.wikipedia.graph.expansion;
 
-import java.io.IOException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -17,21 +16,9 @@ public class ForwardWikipediaGraphNodeExpanderTest {
         assertTrue(nodeExpander.isValidNode("Disc_jockey"));
         assertTrue(!nodeExpander.getNeighbors("Disc_jockey").isEmpty());
         
-        try {
-            assertFalse(nodeExpander.isValidNode("Disc_jfdsfsockey"));
-            fail();
-        } catch (final Exception ex) {
-            System.out.println("ex = " + ex);
-        }
-        
-        try {
-            assertTrue(nodeExpander.getNeighbors("Disc_jockeyfdsfsd")
-                                   .isEmpty());
-            
-            fail();
-        } catch (final Exception ex) {
-            
-        }
+        assertFalse(nodeExpander.isValidNode("Disc_jfdsfsockey"));
+        assertTrue(nodeExpander.getNeighbors("Disc_jockeyfdsfsd")
+                               .isEmpty());
     }
     
     @Test(expected = Exception.class)
