@@ -4,13 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,60 +27,59 @@ extends AbstractWikipediaGraphNodeExpander {
     }
     
     @Override
-    public List<String> getNeighbors(final String articleTitle) 
-    throws MalformedURLException, IOException {
-        
-        final List<String> linkNameList = new ArrayList<>();
-        final String jsonText = downloadJson(articleTitle, true);
-        
-        Gson gson = new Gson();
+    public List<String> getNeighbors(final String articleTitle) {
+        try {
+            final List<String> linkNameList = new ArrayList<>();
+            final String jsonText = downloadJson(articleTitle, true);
 
-        JsonObject root = gson.fromJson(jsonText, JsonObject.class);
-        JsonElement queryElement = root.get("query");
-        JsonObject queryObject = queryElement.getAsJsonObject();
-        JsonObject pagesObject = queryObject.getAsJsonObject("pages");
+            Gson gson = new Gson();
 
-        Set<Map.Entry<String, JsonElement>> set = pagesObject.entrySet();
+            JsonObject root = gson.fromJson(jsonText, JsonObject.class);
+            JsonElement queryElement = root.get("query");
+            JsonObject queryObject = queryElement.getAsJsonObject();
+            JsonObject pagesObject = queryObject.getAsJsonObject("pages");
 
-        JsonObject idObject = 
-                set
-                    .iterator()
-                    .next()
-                    .getValue()
-                    .getAsJsonObject();
+            Set<Map.Entry<String, JsonElement>> set = pagesObject.entrySet();
 
-        JsonArray linkArray = idObject.getAsJsonArray("links");
+            JsonObject idObject = 
+                    set
+                        .iterator()
+                        .next()
+                        .getValue()
+                        .getAsJsonObject();
 
-        for (JsonElement titleElement : linkArray) {
-            int namespace = 
-                    titleElement.getAsJsonObject().get("ns").getAsInt();
+            JsonArray linkArray = idObject.getAsJsonArray("links");
 
-            if (namespace != 0) {
-                continue;
-            }
+            for (JsonElement titleElement : linkArray) {
+                int namespace = 
+                        titleElement.getAsJsonObject().get("ns").getAsInt();
 
-            String title = 
-                    titleElement
-                            .getAsJsonObject()
-                            .get("title")
-                            .getAsString();
-            try {
+                if (namespace != 0) {
+                    continue;
+                }
+
+                String title = 
+                        titleElement
+                                .getAsJsonObject()
+                                .get("title")
+                                .getAsString();
+
                 title = URLEncoder.encode(
                         title,
                         StandardCharsets.UTF_8.toString())
                         .replace("+", "_");
 
-            } catch (UnsupportedEncodingException ex) {
-                System.err.printf(
-                        "Could not URL encode \"%s\". Omitting.\n", 
-                        title);
-
-                return Collections.<String>emptyList();
+                linkNameList.add(constructFullWikipediaLink(title));
             }
 
-            linkNameList.add(constructFullWikipediaLink(title));
+            return linkNameList;
+           
+        } catch (final Exception ex) {
+            throw new RuntimeException(
+                    String.format(
+                            "Forward article \"%s\" failed to expand.", 
+                            articleTitle), 
+                    ex);
         }
-        
-        return linkNameList;
     }
 }

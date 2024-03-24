@@ -3,13 +3,10 @@ package com.github.coderodde.wikipedia.graph.expansion.benchmark;
 import java.util.List;
 import com.github.coderodde.wikipedia.graph.expansion.BackwardWikipediaGraphNodeExpander;
 import com.github.coderodde.wikipedia.graph.expansion.ForwardWikipediaGraphNodeExpander;
-import java.io.IOException;
-import java.net.MalformedURLException;
 
 public final class Benchmark {
     
-    public static void main(String[] args) throws MalformedURLException, 
-                                                  IOException {
+    public static void main(String[] args) throws Exception {
         System.out.println("[Forward expansion]");
         
         long start = System.currentTimeMillis();

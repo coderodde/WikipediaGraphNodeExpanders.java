@@ -62,9 +62,7 @@ public abstract class AbstractWikipediaGraphNodeExpander {
         this.apiUrl = constructAPIURL(languageLocaleName);
     }
     
-    public boolean isValidNode(final String node) 
-            throws MalformedURLException, IOException{
-        
+    public boolean isValidNode(final String node) {
         return !getNeighbors(node).isEmpty();
     }
     
@@ -74,10 +72,8 @@ public abstract class AbstractWikipediaGraphNodeExpander {
      * @param node the starting node.
      * 
      * @return the neighboring links.
-     * @throws java.net.MalformedURLException
      */
-    public abstract List<String> getNeighbors(final String node)
-            throws MalformedURLException, IOException;
+    public abstract List<String> getNeighbors(final String node);
     
     /**
      * The actual implementation of the method producing the neighbour JSON data

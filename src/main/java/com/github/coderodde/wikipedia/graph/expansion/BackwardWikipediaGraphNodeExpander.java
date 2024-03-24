@@ -30,44 +30,44 @@ extends AbstractWikipediaGraphNodeExpander {
     }
     
     @Override
-    public List<String> getNeighbors(final String articleTitle) 
-            throws MalformedURLException, IOException {
+    public List<String> getNeighbors(final String articleTitle) {
         
-        final List<String> linkNameList = new ArrayList<>();
-        final String jsonText = downloadJson(articleTitle, false);
+        try {
+            final List<String> linkNameList = new ArrayList<>();
+            final String jsonText = downloadJson(articleTitle, false);
 
-        Gson gson = new Gson();
-        JsonObject root = gson.fromJson(jsonText, JsonObject.class);
-        JsonElement queryElement = root.get("query");
-        JsonElement backlinksElement = 
-                queryElement.getAsJsonObject().get("backlinks");
+            Gson gson = new Gson();
+            JsonObject root = gson.fromJson(jsonText, JsonObject.class);
+            JsonElement queryElement = root.get("query");
+            JsonElement backlinksElement = 
+                    queryElement.getAsJsonObject().get("backlinks");
 
-        JsonArray pagesArray = backlinksElement.getAsJsonArray();
+            JsonArray pagesArray = backlinksElement.getAsJsonArray();
 
-        for (JsonElement element : pagesArray) {
-            int namespace = element.getAsJsonObject().get("ns").getAsInt();
+            for (JsonElement element : pagesArray) {
+                int namespace = element.getAsJsonObject().get("ns").getAsInt();
 
-            if (namespace == 0) {
-                String title = element.getAsJsonObject().get("title")
-                        .getAsString();
-                try {
+                if (namespace == 0) {
+                    String title = element.getAsJsonObject().get("title")
+                            .getAsString();
+
                     title = URLEncoder.encode(
                             title,
                             StandardCharsets.UTF_8.toString())
                             .replace("+", "_");
 
-                } catch (UnsupportedEncodingException ex) {
-                    System.err.printf(
-                            "Could not URL encode \"%s\". Omitting.\n", 
-                            title);
-
-                    return Collections.<String>emptyList();
+                    linkNameList.add(constructFullWikipediaLink(title));
                 }
-
-                linkNameList.add(constructFullWikipediaLink(title));
             }
-        }
 
-        return linkNameList;
+            return linkNameList;
+            
+        } catch (final Exception ex) {
+            throw new RuntimeException(
+                    String.format(
+                            "Backward article \"%s\" failed to expand.", 
+                            articleTitle), 
+                    ex);
+        }
     }
 }

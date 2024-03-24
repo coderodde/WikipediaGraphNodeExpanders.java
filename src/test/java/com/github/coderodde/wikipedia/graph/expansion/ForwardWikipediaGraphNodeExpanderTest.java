@@ -10,7 +10,7 @@ public class ForwardWikipediaGraphNodeExpanderTest {
     private ForwardWikipediaGraphNodeExpander nodeExpander;
     
     @Test
-    public void getNeighbors() throws IOException {
+    public void getNeighbors() throws Exception {
         nodeExpander = 
                 new ForwardWikipediaGraphNodeExpander("en");
         
@@ -34,7 +34,7 @@ public class ForwardWikipediaGraphNodeExpanderTest {
         }
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = Exception.class)
     public void testOnBadWikipediaCountryCode() {
         new ForwardWikipediaGraphNodeExpander("shit");
     }

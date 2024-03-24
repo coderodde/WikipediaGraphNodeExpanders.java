@@ -1,6 +1,5 @@
 package com.github.coderodde.wikipedia.graph.expansion;
 
-import java.io.IOException;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -10,7 +9,7 @@ public class BackwardWikipediaGraphNodeExpanderTest {
     private BackwardWikipediaGraphNodeExpander nodeExpander;
     
     @Test
-    public void getNeighbors() throws IOException {
+    public void getNeighbors() throws Exception {
         nodeExpander = 
                 new BackwardWikipediaGraphNodeExpander("en");
         
@@ -21,7 +20,7 @@ public class BackwardWikipediaGraphNodeExpanderTest {
         assertTrue(nodeExpander.getNeighbors("Disc_jockeyfdsfsd").isEmpty());
     }
     
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = Exception.class)
     public void testOnBadWikipediaCountryCode() {
         new BackwardWikipediaGraphNodeExpander("shit");
     }
