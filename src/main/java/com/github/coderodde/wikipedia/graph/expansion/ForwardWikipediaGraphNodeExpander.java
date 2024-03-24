@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,7 +18,7 @@ import java.util.Set;
  * <tt>B</tt> whenever asked to process <tt>A</tt>. We can say that this 
  * expander traverses each directed arc from tail to head.
  * 
- * @version 1.0.0 (Mar 19, 2024)
+ * @version 1.0.1 (Mar 24, 2024)
  */
 public class ForwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
@@ -28,6 +29,10 @@ extends AbstractWikipediaGraphNodeExpander {
     
     @Override
     public List<String> getNeighbors(final String articleTitle) {
+        if (closed) {
+            return Collections.<String>emptyList();
+        }
+        
         try {
             final List<String> linkNameList = new ArrayList<>();
             final String jsonText = downloadJson(articleTitle, true);

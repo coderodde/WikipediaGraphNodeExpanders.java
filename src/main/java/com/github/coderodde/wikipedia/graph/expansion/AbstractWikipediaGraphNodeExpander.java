@@ -18,6 +18,8 @@ import org.apache.commons.io.IOUtils;
  */
 public abstract class AbstractWikipediaGraphNodeExpander {
    
+    protected volatile boolean closed = false;
+    
     /**
      * The script URL template for expanding forward.
      */
@@ -48,7 +50,7 @@ public abstract class AbstractWikipediaGraphNodeExpander {
      * <a href="https://www.mediawiki.org/wiki/API:Main_page">Wikipedia API</a>.
      */
     protected final String apiUrl;
-
+    
     /**
      * Constructs a graph node expander for the language subgraph specified in
      * the input URL.
@@ -63,7 +65,15 @@ public abstract class AbstractWikipediaGraphNodeExpander {
     }
     
     public boolean isValidNode(final String node) {
+        if (closed) {
+            return false;
+        }
+        
         return !getNeighbors(node).isEmpty();
+    }
+    
+    public void close() {
+        closed = true;
     }
     
     /**

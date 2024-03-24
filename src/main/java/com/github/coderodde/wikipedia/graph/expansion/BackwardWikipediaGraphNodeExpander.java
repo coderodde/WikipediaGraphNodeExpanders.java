@@ -4,9 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -20,7 +17,7 @@ import java.util.List;
  * expander traverses each directed arc from head to tail.
  * 
  * @author Rodion "rodde" Efremov
- * @version 1.0.0 (Mar 19, 2024)
+ * @version 1.0.1 (Mar 24, 2024)
  */
 public class BackwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
@@ -31,6 +28,9 @@ extends AbstractWikipediaGraphNodeExpander {
     
     @Override
     public List<String> getNeighbors(final String articleTitle) {
+        if (closed) {
+            return Collections.<String>emptyList();
+        }
         
         try {
             final List<String> linkNameList = new ArrayList<>();
