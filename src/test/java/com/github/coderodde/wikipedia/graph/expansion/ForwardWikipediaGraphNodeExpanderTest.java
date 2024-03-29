@@ -16,10 +16,20 @@ public class ForwardWikipediaGraphNodeExpanderTest {
         assertTrue(nodeExpander.isValidNode("Disc_jockey"));
         assertTrue(!nodeExpander.getNeighbors("Disc_jockey").isEmpty());
 
+        try {
+            assertFalse(nodeExpander.isValidNode("Disc_jfdsfsockey"));
+            fail();
+        } catch (final Exception ex) {
+            
+        }
         
-//        assertFalse(nodeExpander.isValidNode("Disc_jfdsfsockey"));
-//        assertTrue(nodeExpander.getNeighbors("Disc_jockeyfdsfsd")
-//                               .isEmpty());
+        try {
+            assertTrue(nodeExpander.getNeighbors("Disc_jockeyfdsfsd")
+                                   .isEmpty());
+            fail();
+        } catch (final Exception ex) {
+            
+        }
     }
     
     @Test(expected = Exception.class)
