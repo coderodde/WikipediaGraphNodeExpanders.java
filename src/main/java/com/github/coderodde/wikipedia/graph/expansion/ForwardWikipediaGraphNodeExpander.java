@@ -22,6 +22,8 @@ import java.util.Set;
  */
 public class ForwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
+    
+    private static final Gson GSON = new Gson();
 
     public ForwardWikipediaGraphNodeExpander(final String languageLocaleName) {
         super(languageLocaleName);
@@ -35,46 +37,65 @@ extends AbstractWikipediaGraphNodeExpander {
         
         try {
             final List<String> linkNameList = new ArrayList<>();
-            final String jsonText = downloadJson(articleTitle, true);
-
-            final Gson gson = new Gson();
-
-            JsonObject root = gson.fromJson(jsonText, JsonObject.class);
-            JsonElement queryElement = root.get("query");
-            JsonObject queryObject = queryElement.getAsJsonObject();
-            JsonObject pagesObject = queryObject.getAsJsonObject("pages");
-
-            Set<Map.Entry<String, JsonElement>> set = pagesObject.entrySet();
-
-            JsonObject idObject = 
-                    set
-                        .iterator()
-                        .next()
-                        .getValue()
-                        .getAsJsonObject();
-
-            JsonArray linkArray = idObject.getAsJsonArray("links");
+            String continueArticle = "";
+            boolean exitLoop = false;
             
-            for (JsonElement titleElement : linkArray) {
-                int namespace = 
-                        titleElement.getAsJsonObject().get("ns").getAsInt();
-
-                if (namespace != 0) {
-                    continue;
+            while (exitLoop == false) {
+                final String jsonText = downloadJson(articleTitle, 
+                                                     continueArticle,
+                                                     true);
+                
+                JsonObject root = GSON.fromJson(jsonText, JsonObject.class);
+                JsonObject nextContinueArticleJsonObject = 
+                        root.getAsJsonObject("continue").getAsJsonObject();
+                
+                if (nextContinueArticleJsonObject == null) {
+                    exitLoop = true;
+                } else {
+                    continueArticle =
+                            nextContinueArticleJsonObject
+                                    .get("plcontinue").getAsString();
+                    
+                    System.out.println("yeah");
+                    System.out.println(continueArticle);
                 }
+                
+                JsonElement queryElement = root.get("query");
+                JsonObject queryObject = queryElement.getAsJsonObject();
+                JsonObject pagesObject = queryObject.getAsJsonObject("pages");
 
-                String title = 
-                        titleElement
-                                .getAsJsonObject()
-                                .get("title")
-                                .getAsString();
+                Set<Map.Entry<String, JsonElement>> set = pagesObject.entrySet();
 
-                title = URLEncoder.encode(
-                        title,
-                        StandardCharsets.UTF_8.toString())
-                        .replace("+", "_");
+                JsonObject idObject = 
+                        set
+                            .iterator()
+                            .next()
+                            .getValue()
+                            .getAsJsonObject();
 
-                linkNameList.add(constructFullWikipediaLink(title));
+                JsonArray linkArray = idObject.getAsJsonArray("links");
+
+                for (JsonElement titleElement : linkArray) {
+                    int namespace = 
+                            titleElement.getAsJsonObject().get("ns").getAsInt();
+
+                    if (namespace != 0) {
+                        continue;
+                    }
+
+                    String title = 
+                            titleElement
+                                    .getAsJsonObject()
+                                    .get("title")
+                                    .getAsString();
+
+                    title = URLEncoder.encode(
+                            title,
+                            StandardCharsets.UTF_8.toString())
+                            .replace("+", "_");
+
+                    linkNameList.add(constructFullWikipediaLink(title));
+                }
             }
 
             return linkNameList;

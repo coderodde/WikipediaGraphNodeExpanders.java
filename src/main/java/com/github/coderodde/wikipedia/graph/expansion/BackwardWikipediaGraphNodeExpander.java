@@ -34,7 +34,7 @@ extends AbstractWikipediaGraphNodeExpander {
         
         try {
             final List<String> linkNameList = new ArrayList<>();
-            final String jsonText = downloadJson(articleTitle, false);
+            final String jsonText = downloadJson(articleTitle, "", false);
 
             Gson gson = new Gson();
             JsonObject root = gson.fromJson(jsonText, JsonObject.class);

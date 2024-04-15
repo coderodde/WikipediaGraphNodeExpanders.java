@@ -2,6 +2,8 @@ package com.github.coderodde.wikipedia.graph.expansion;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
@@ -90,25 +92,44 @@ public abstract class AbstractWikipediaGraphNodeExpander {
      * of the article graph node.
      * 
      * @param articleName the node to expand.
+     * @param continueArticle {@code null} if this is the first call for 
+     *                        {@code downloadJson}. Otherwise, the article from
+     *                        which to continue.
      * @param forward specifies the direction of the node expansion operation.
      *                if {@code forward} is {@code true}, generates the child
      *                nodes of {@code node}. Otherwise, generates the parent 
      *                nodes of {@code node}.
      * @return the JSON data describing the forward- or backward-links.
-     * @throws java.net.MalformedURLException if the URL is invalid.
+     * @throws java.net.MalformedURLException if the URL is malformed.
+     * @throws java.net.URISyntaxException if the URI is invalid.
      */
     protected String downloadJson(final String articleName,
+                                  final String continueArticle,
                                   final boolean forward) 
-            throws MalformedURLException, IOException {
+            throws MalformedURLException, IOException, URISyntaxException {
         
-        final String jsonDataUrl =
-                apiUrl + String.format(forward ?
-                                            FORWARD_REQUEST_API_URL_SUFFIX :
-                                            BACKWARD_REQUEST_API_URL_SUFFIX,
-                                       URLEncoder.encode(articleName,
-                                                         "UTF-8"));
+        final String jsonDataUri;
         
-        return IOUtils.toString(new URL(jsonDataUrl), Charset.forName("UTF-8"));
+        if (continueArticle == null) {
+            jsonDataUri = 
+                    apiUrl + String.format(
+                                forward ? 
+                                        FORWARD_REQUEST_API_URL_SUFFIX : 
+                                        BACKWARD_REQUEST_API_URL_SUFFIX, 
+                                URLEncoder.encode(articleName, "UTF-8"));
+        } else {
+            jsonDataUri = 
+                    apiUrl + 
+                    String.format(
+                            forward ? 
+                                    FORWARD_REQUEST_API_URL_SUFFIX : 
+                                    BACKWARD_REQUEST_API_URL_SUFFIX, 
+                            URLEncoder.encode(articleName, "UTF-8")) 
+                    + "&plcontinue=" 
+                    + continueArticle;
+        }
+        
+        return IOUtils.toString(new URI(jsonDataUri), Charset.forName("UTF-8"));
     }
     
     /**
