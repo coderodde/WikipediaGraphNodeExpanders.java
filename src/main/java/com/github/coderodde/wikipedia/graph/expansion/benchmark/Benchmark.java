@@ -12,8 +12,8 @@ public final class Benchmark {
         long start = System.currentTimeMillis();
         
         List<String> forwardLinks = 
-                new ForwardWikipediaGraphNodeExpander("fi")
-                        .getNeighbors("Bugatti");
+                new ForwardWikipediaGraphNodeExpander("en")
+                        .getNeighbors("Life");
         
         long end = System.currentTimeMillis();
         
@@ -26,8 +26,8 @@ public final class Benchmark {
         start = System.currentTimeMillis();
         
         List<String> backwardLinks = 
-                new BackwardWikipediaGraphNodeExpander("fi")
-                        .getNeighbors("Bugatti");
+                new BackwardWikipediaGraphNodeExpander("en")
+                        .getNeighbors("Life");
         
         end = System.currentTimeMillis();
         

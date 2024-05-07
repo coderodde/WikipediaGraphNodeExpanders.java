@@ -40,6 +40,8 @@ public abstract class AbstractWikipediaGraphNodeExpander {
             "&bllimit=max" + 
             "&format=json";
     
+    protected static final String CONTINUE_PARAMETER = "&plcontinue=%s";
+    
     protected final String languageLocaleName;
     
     protected static final String API_URL_FORMAT = 
@@ -65,16 +67,8 @@ public abstract class AbstractWikipediaGraphNodeExpander {
     }
     
     public boolean isValidNode(final String node) throws Exception {
-//        if (closed) {
-//            return true;
-//        }
-        
         return !getNeighbors(node).isEmpty();
     }
-    
-//    public void close() {
-//        closed = true;
-//    }
     
     /**
      * Retrieves the neighboring links targets.
@@ -94,20 +88,26 @@ public abstract class AbstractWikipediaGraphNodeExpander {
      *                if {@code forward} is {@code true}, generates the child
      *                nodes of {@code node}. Otherwise, generates the parent 
      *                nodes of {@code node}.
+     * @param continuationCode the continuation code.
+     * 
      * @return the JSON data describing the forward- or backward-links.
      * @throws java.net.MalformedURLException if the URL is invalid.
      */
     protected String downloadJson(final String articleName,
-                                  final boolean forward) 
+                                  final boolean forward,
+                                  final String continuationCode) 
             throws MalformedURLException, IOException {
         
         try {
-            final String jsonDataUrl =
-                    apiUrl + String.format(forward ?
-                                                FORWARD_REQUEST_API_URL_SUFFIX :
-                                                BACKWARD_REQUEST_API_URL_SUFFIX,
-                                           URLEncoder.encode(articleName,
-                                                             "UTF-8"));
+            String jsonDataUrl = apiUrl + String.format(forward ?
+                                              FORWARD_REQUEST_API_URL_SUFFIX :
+                                              BACKWARD_REQUEST_API_URL_SUFFIX,
+                                          URLEncoder.encode(articleName,
+                                                            "UTF-8"));
+            
+            if (continuationCode != null) {
+                jsonDataUrl += CONTINUE_PARAMETER.formatted(continuationCode);
+            }
 
             return IOUtils.toString(new URL(jsonDataUrl), 
                                     Charset.forName("UTF-8"));
@@ -154,5 +154,9 @@ public abstract class AbstractWikipediaGraphNodeExpander {
                     String.format("Unknown language locale name: %s.", 
                                   languageLocaleName));
         }
+    }
+    
+    protected String getContinueParameter(final String continuationCode) {
+        return String.format(CONTINUE_PARAMETER, continuationCode);
     }
 }
