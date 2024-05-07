@@ -17,9 +17,9 @@ public final class Benchmark {
         
         long end = System.currentTimeMillis();
         
-        System.out.printf("Forward request in %d milliseconds.\n", end - start);
-        
         forwardLinks.forEach(System.out::println);
+        
+        System.out.printf("Forward request in %d milliseconds.\n", end - start);
         
         System.out.println("[Backward expansion]");
         
@@ -31,8 +31,8 @@ public final class Benchmark {
         
         end = System.currentTimeMillis();
         
-        System.out.printf("Backward request in %d milliseconds.\n", end - start);
-        
         backwardLinks.forEach(System.out::println);
+        
+        System.out.printf("Backward request in %d milliseconds.\n", end - start);
     }
 }

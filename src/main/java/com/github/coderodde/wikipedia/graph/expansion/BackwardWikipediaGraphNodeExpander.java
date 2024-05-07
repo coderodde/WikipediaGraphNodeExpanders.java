@@ -27,37 +27,61 @@ extends AbstractWikipediaGraphNodeExpander {
     
     @Override
     public List<String> getNeighbors(final String articleTitle) throws Exception {
+        String continuationCode = null;
+        final List<String> linkNameList = new ArrayList<>();
+        boolean exitRequested = false;
         
         try {
-            final List<String> linkNameList = new ArrayList<>();
-            final String jsonText = downloadJson(articleTitle, false, null);
+            while (true) {
+             
+                final String jsonText = downloadJson(articleTitle, 
+                                                     false, 
+                                                     continuationCode);
 
-            Gson gson = new Gson();
-            JsonObject root = gson.fromJson(jsonText, JsonObject.class);
-            JsonElement queryElement = root.get("query");
-            JsonElement backlinksElement = 
-                    queryElement.getAsJsonObject().get("backlinks");
+                JsonObject root = GSON.fromJson(jsonText, JsonObject.class);
 
-            JsonArray pagesArray = backlinksElement.getAsJsonArray();
+                JsonElement queryElement    = root.get("query");
+                JsonElement continueElement = root.get("continue");
 
-            for (JsonElement element : pagesArray) {
-                int namespace = element.getAsJsonObject().get("ns").getAsInt();
+                if (continueElement != null) {
+                    JsonObject continueJsonObject =
+                            continueElement.getAsJsonObject();
 
-                if (namespace == 0) {
-                    String title = element.getAsJsonObject().get("title")
-                            .getAsString();
+                    continuationCode = 
+                            continueJsonObject
+                                    .get("blcontinue")
+                                    .getAsString();
+                    
+                    System.out.println("B >>> " + continuationCode);
+                } else {
+                    exitRequested = true;
+                }
 
-                    title = URLEncoder.encode(
-                            title,
-                            StandardCharsets.UTF_8.toString())
-                            .replace("+", "_");
+                JsonElement backlinksElement = 
+                        queryElement.getAsJsonObject().get("backlinks");
 
-                    linkNameList.add(constructFullWikipediaLink(title));
+                JsonArray pagesArray = backlinksElement.getAsJsonArray();
+
+                for (JsonElement element : pagesArray) {
+                    int namespace = element.getAsJsonObject().get("ns").getAsInt();
+
+                    if (namespace == 0) {
+                        String title = element.getAsJsonObject().get("title")
+                                .getAsString();
+
+                        title = URLEncoder.encode(
+                                title,
+                                StandardCharsets.UTF_8.toString())
+                                .replace("+", "_");
+
+                        linkNameList.add(constructFullWikipediaLink(title));
+                    }
+                }
+
+                if (exitRequested) {
+                    return linkNameList;
                 }
             }
-
-            return linkNameList;
-            
         } catch (final Exception ex) {
             throw new Exception(
                     String.format(

@@ -28,9 +28,9 @@ extends AbstractWikipediaGraphNodeExpander {
     @Override
     public List<String> getNeighbors(final String articleTitle) throws Exception {
         String continuationCode = null;
-        final Gson gson = new Gson();
-        final List<String> linkNameList = new ArrayList<>();
         boolean exitRequested = false;
+        
+        final List<String> linkNameList = new ArrayList<>();
         
         try {
             while (true) {
@@ -39,13 +39,14 @@ extends AbstractWikipediaGraphNodeExpander {
                                                      true, 
                                                      continuationCode);
 
-                JsonObject root = gson.fromJson(jsonText, JsonObject.class);
-                JsonElement queryElement = root.get("query");
-                JsonElement continueElement = root.get("continue");
+                JsonObject root = GSON.fromJson(jsonText, JsonObject.class);
                 
+                JsonElement queryElement         = root.get("query");
+                JsonElement continueElement      = root.get("continue");
                 JsonElement batchCompleteElement = root.get("batchcomplete");
                 
                 if (batchCompleteElement != null) {
+                    // Mark the end of batch downloading:
                     exitRequested = true;
                 }
                 
@@ -58,7 +59,7 @@ extends AbstractWikipediaGraphNodeExpander {
                                     .get("plcontinue")
                                     .getAsString();
                     
-                    System.out.println(">>> Continueing on " + continuationCode);
+                    System.out.println(">>> F Continueing on " + continuationCode);
                 }
 
                 JsonObject queryObject = queryElement.getAsJsonObject();

@@ -1,5 +1,6 @@
 package com.github.coderodde.wikipedia.graph.expansion;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -18,6 +19,8 @@ import org.apache.commons.io.IOUtils;
  */
 public abstract class AbstractWikipediaGraphNodeExpander {
    
+    protected static final Gson GSON = new Gson();
+    
     protected volatile boolean closed = false;
     
     /**
@@ -38,9 +41,12 @@ public abstract class AbstractWikipediaGraphNodeExpander {
             "&list=backlinks" +
             "&bltitle=%s" + 
             "&bllimit=max" + 
-            "&format=json";
+            "&format=json" + 
+            "&blnamespace=0";
     
-    protected static final String CONTINUE_PARAMETER = "&plcontinue=%s";
+    protected static final String FORWARD_CONTINUE_PARAMETER = "&plcontinue=%s";
+    protected static final String BACKWARD_CONTINUE_PARAMETER =
+            "&blcontinue=%s";
     
     protected final String languageLocaleName;
     
@@ -106,7 +112,15 @@ public abstract class AbstractWikipediaGraphNodeExpander {
                                                             "UTF-8"));
             
             if (continuationCode != null) {
-                jsonDataUrl += CONTINUE_PARAMETER.formatted(continuationCode);
+                if (forward) {
+                    jsonDataUrl +=
+                            FORWARD_CONTINUE_PARAMETER
+                                    .formatted(continuationCode);
+                } else {
+                    jsonDataUrl += 
+                            BACKWARD_CONTINUE_PARAMETER
+                                    .formatted(continuationCode);
+                }
             }
 
             return IOUtils.toString(new URL(jsonDataUrl), 
@@ -154,9 +168,5 @@ public abstract class AbstractWikipediaGraphNodeExpander {
                     String.format("Unknown language locale name: %s.", 
                                   languageLocaleName));
         }
-    }
-    
-    protected String getContinueParameter(final String continuationCode) {
-        return String.format(CONTINUE_PARAMETER, continuationCode);
     }
 }
