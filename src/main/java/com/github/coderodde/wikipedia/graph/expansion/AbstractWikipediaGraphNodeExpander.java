@@ -2,7 +2,6 @@ package com.github.coderodde.wikipedia.graph.expansion;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -129,7 +128,7 @@ public abstract class AbstractWikipediaGraphNodeExpander {
                     + continueArticle;
         }
         
-        return IOUtils.toString(new URI(jsonDataUri), Charset.forName("UTF-8"));
+        return IOUtils.toString(new URL(jsonDataUri), Charset.forName("UTF-8"));
     }
     
     /**

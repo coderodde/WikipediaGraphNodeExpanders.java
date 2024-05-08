@@ -20,7 +20,7 @@ public final class Benchmark {
         System.out.printf("Forward request in %d milliseconds.\n", end - start);
         
         forwardLinks.forEach(System.out::println);
-        
+        System.exit(0);
         System.out.println("[Backward expansion]");
         
         start = System.currentTimeMillis();

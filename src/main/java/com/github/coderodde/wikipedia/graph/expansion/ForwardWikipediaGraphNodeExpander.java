@@ -37,27 +37,25 @@ extends AbstractWikipediaGraphNodeExpander {
         
         try {
             final List<String> linkNameList = new ArrayList<>();
-            String continueArticle = "";
-            boolean exitLoop = false;
+            String continueArticle = null;
+            boolean exitRequested = false;
             
-            while (exitLoop == false) {
+            while (true) {
                 final String jsonText = downloadJson(articleTitle, 
                                                      continueArticle,
                                                      true);
                 
                 JsonObject root = GSON.fromJson(jsonText, JsonObject.class);
                 JsonObject nextContinueArticleJsonObject = 
-                        root.getAsJsonObject("continue").getAsJsonObject();
-                
+                        root.getAsJsonObject("continue");
+                                
                 if (nextContinueArticleJsonObject == null) {
-                    exitLoop = true;
+                    exitRequested = true;
                 } else {
                     continueArticle =
                             nextContinueArticleJsonObject
-                                    .get("plcontinue").getAsString();
-                    
-                    System.out.println("yeah");
-                    System.out.println(continueArticle);
+                                    .get("plcontinue")
+                                    .getAsString();
                 }
                 
                 JsonElement queryElement = root.get("query");
@@ -96,10 +94,11 @@ extends AbstractWikipediaGraphNodeExpander {
 
                     linkNameList.add(constructFullWikipediaLink(title));
                 }
+                
+                if (exitRequested) {
+                    return linkNameList;
+                }
             }
-
-            return linkNameList;
-           
         } catch (final Exception ex) {
             throw new RuntimeException(
                     String.format(
