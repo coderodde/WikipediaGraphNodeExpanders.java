@@ -9,22 +9,25 @@ public final class Benchmark {
     public static void main(String[] args) throws Exception {
         System.out.println("[Forward expansion]");
         
-        long start = System.currentTimeMillis();
+        long start;
+        long end;
+        
+        start = System.currentTimeMillis();
         
         List<String> forwardLinks = 
                 new ForwardWikipediaGraphNodeExpander("en")
                         .getNeighbors("Life");
         
-        long end = System.currentTimeMillis();
+        end = System.currentTimeMillis();
         
         System.out.printf("Forward request in %d milliseconds.\n", end - start);
         
         forwardLinks.forEach(System.out::println);
-        System.exit(0);
+        
         System.out.println("[Backward expansion]");
         
         start = System.currentTimeMillis();
-        System.exit(0);
+       
         List<String> backwardLinks = 
                 new BackwardWikipediaGraphNodeExpander("en")
                         .getNeighbors("Life");

@@ -7,7 +7,6 @@ import com.google.gson.JsonObject;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,40 +27,56 @@ extends AbstractWikipediaGraphNodeExpander {
     
     @Override
     public List<String> getNeighbors(final String articleTitle) {
-        if (closed) {
-            return Collections.<String>emptyList();
-        }
-        
         try {
             final List<String> linkNameList = new ArrayList<>();
-            final String jsonText = downloadJson(articleTitle, "", false);
+            String continueArticle = null;
+            boolean exitRequested = false;
+            
+            while (true) {
+                final String jsonText = downloadJson(articleTitle,
+                                                     continueArticle,
+                                                     false);
+                JsonObject root = GSON.fromJson(jsonText, JsonObject.class);
+                JsonElement continueJsonElement = root.get("continue");
+                
+                if (continueJsonElement == null) {
+                    exitRequested = true;
+                } else {
+                    
+                    final JsonElement blcontinueJsonElement = 
+                            continueJsonElement
+                                    .getAsJsonObject()
+                                    .get("blcontinue");
+                    
+                    continueArticle = blcontinueJsonElement.getAsString();
+                }
+                
+                JsonElement queryElement = root.get("query");
+                JsonElement backlinksElement = 
+                        queryElement.getAsJsonObject().get("backlinks");
 
-            Gson gson = new Gson();
-            JsonObject root = gson.fromJson(jsonText, JsonObject.class);
-            JsonElement queryElement = root.get("query");
-            JsonElement backlinksElement = 
-                    queryElement.getAsJsonObject().get("backlinks");
+                JsonArray pagesArray = backlinksElement.getAsJsonArray();
 
-            JsonArray pagesArray = backlinksElement.getAsJsonArray();
+                for (JsonElement element : pagesArray) {
+                    int namespace = element.getAsJsonObject().get("ns").getAsInt();
 
-            for (JsonElement element : pagesArray) {
-                int namespace = element.getAsJsonObject().get("ns").getAsInt();
+                    if (namespace == 0) {
+                        String title = element.getAsJsonObject().get("title")
+                                .getAsString();
 
-                if (namespace == 0) {
-                    String title = element.getAsJsonObject().get("title")
-                            .getAsString();
+                        title = URLEncoder.encode(
+                                title,
+                                StandardCharsets.UTF_8.toString())
+                                .replace("+", "_");
 
-                    title = URLEncoder.encode(
-                            title,
-                            StandardCharsets.UTF_8.toString())
-                            .replace("+", "_");
+                        linkNameList.add(constructFullWikipediaLink(title));
+                    }
+                }
 
-                    linkNameList.add(constructFullWikipediaLink(title));
+                if (exitRequested) {
+                    return linkNameList;
                 }
             }
-
-            return linkNameList;
-            
         } catch (final Exception ex) {
             throw new RuntimeException(
                     String.format(

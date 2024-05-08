@@ -31,10 +31,6 @@ extends AbstractWikipediaGraphNodeExpander {
     
     @Override
     public List<String> getNeighbors(final String articleTitle) {
-        if (closed) {
-            return Collections.<String>emptyList();
-        }
-        
         try {
             final List<String> linkNameList = new ArrayList<>();
             String continueArticle = null;

@@ -1,5 +1,6 @@
 package com.github.coderodde.wikipedia.graph.expansion;
 
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
@@ -18,8 +19,8 @@ import org.apache.commons.io.IOUtils;
  * @version 1.0.0 (Mar 20, 2024)
  */
 public abstract class AbstractWikipediaGraphNodeExpander {
-   
-    protected volatile boolean closed = false;
+    
+    protected static final Gson GSON = new Gson();
     
     /**
      * The script URL template for expanding forward.
@@ -66,15 +67,7 @@ public abstract class AbstractWikipediaGraphNodeExpander {
     }
     
     public boolean isValidNode(final String node) {
-        if (closed) {
-            return true;
-        }
-        
         return !getNeighbors(node).isEmpty();
-    }
-    
-    public void close() {
-        closed = true;
     }
     
     /**
@@ -107,25 +100,21 @@ public abstract class AbstractWikipediaGraphNodeExpander {
                                   final boolean forward) 
             throws MalformedURLException, IOException, URISyntaxException {
         
-        final String jsonDataUri;
-        
-        if (continueArticle == null) {
-            jsonDataUri = 
-                    apiUrl + String.format(
-                                forward ? 
-                                        FORWARD_REQUEST_API_URL_SUFFIX : 
-                                        BACKWARD_REQUEST_API_URL_SUFFIX, 
-                                URLEncoder.encode(articleName, "UTF-8"));
-        } else {
-            jsonDataUri = 
+        String jsonDataUri = 
                     apiUrl + 
                     String.format(
                             forward ? 
                                     FORWARD_REQUEST_API_URL_SUFFIX : 
                                     BACKWARD_REQUEST_API_URL_SUFFIX, 
-                            URLEncoder.encode(articleName, "UTF-8")) 
-                    + "&plcontinue=" 
-                    + continueArticle;
+                            URLEncoder.encode(articleName, "UTF-8"));
+        
+        if (continueArticle != null) {
+            if (forward) {
+                jsonDataUri += "&plcontinue=" + continueArticle;
+            } else {
+                jsonDataUri += "&blnamespace=0&blcontinue=" + 
+                               continueArticle;
+            }
         }
         
         return IOUtils.toString(new URL(jsonDataUri), Charset.forName("UTF-8"));
