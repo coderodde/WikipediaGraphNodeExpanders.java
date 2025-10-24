@@ -2,11 +2,14 @@ package com.github.coderodde.wikipedia.graph.expansion;
 
 import com.google.gson.Gson;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -117,7 +120,35 @@ public abstract class AbstractWikipediaGraphNodeExpander {
             }
         }
         
-        return IOUtils.toString(new URL(jsonDataUri), Charset.forName("UTF-8"));
+        HttpURLConnection connection = 
+                (HttpURLConnection) new URL(jsonDataUri).openConnection();
+        
+        connection.setRequestMethod("GET");
+        connection.setRequestProperty(
+                "User-Agent",
+                "WikipediaGraphExpander/1.0 (+https://github.com/coderodde/; " + 
+                "mailto:coderodd3@gmail.com)");
+        
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setConnectTimeout(10_000);
+        connection.setReadTimeout(10_000);
+        
+        int code = connection.getResponseCode();
+        InputStream is = (code >= 200 && code < 300) ? 
+                connection.getInputStream() :
+                connection.getErrorStream();
+        
+        String body = IOUtils.toString(is, StandardCharsets.UTF_8);
+ 
+        if (code < 200 || code >= 300) {
+            throw new IOException(
+                    String.format(
+                            "Wikipedia API returned the code %d, body: %s",
+                            code,
+                            body));
+        }
+        
+        return body;
     }
     
     /**
