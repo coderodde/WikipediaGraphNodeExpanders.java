@@ -8,7 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +18,8 @@ import org.apache.commons.io.IOUtils;
  * This abstract class specifies the facilities shared by both forward and 
  * backward node expanders.
  * 
- * @version 1.0.0 (Mar 20, 2024)
+ * @version 1.0.1 (Oct 24, 2025)
+ * @since 1.0.0 (Mar 20, 2024)
  */
 public abstract class AbstractWikipediaGraphNodeExpander {
     
