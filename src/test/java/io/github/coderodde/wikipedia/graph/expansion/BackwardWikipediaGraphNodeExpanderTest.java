@@ -1,4 +1,4 @@
-package com.github.coderodde.wikipedia.graph.expansion;
+package io.github.coderodde.wikipedia.graph.expansion;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -20,8 +20,13 @@ public class BackwardWikipediaGraphNodeExpanderTest {
         assertTrue(nodeExpander.getNeighbors("Disc_jockeyfdsfsd").isEmpty());
     }
     
-    @Test(expected = Exception.class)
+    @Test
     public void testOnBadWikipediaCountryCode() {
-        new BackwardWikipediaGraphNodeExpander("shit");
+        try {
+            new BackwardWikipediaGraphNodeExpander("bad-country-code");
+            fail("Should have thrown Exception on bad-country-code");
+        } catch (final Exception ex) {
+            
+        }
     }
 }

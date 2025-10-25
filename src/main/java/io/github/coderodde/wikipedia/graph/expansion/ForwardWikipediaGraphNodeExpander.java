@@ -1,9 +1,9 @@
-package com.github.coderodde.wikipedia.graph.expansion;
+package io.github.coderodde.wikipedia.graph.expansion;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.github.coderodde.wikipedia.json.downloader.WikipediaArticleJsonDownloader;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -22,23 +22,28 @@ import java.util.Set;
 public class ForwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
     
-    private static final Gson GSON = new Gson();
-
-    public ForwardWikipediaGraphNodeExpander(final String languageLocaleName) {
+    public ForwardWikipediaGraphNodeExpander(final String languageLocaleName) 
+            throws Exception {
+        
         super(languageLocaleName);
     }
     
     @Override
     public List<String> getNeighbors(final String articleTitle) {
+        
+        final WikipediaArticleJsonDownloader downloader = 
+                new WikipediaArticleJsonDownloader(this.languageISOCode);
+        
         try {
             final List<String> linkNameList = new ArrayList<>();
             String continueArticle = null;
             boolean exitRequested = false;
             
             while (true) {
-                final String jsonText = downloadJson(articleTitle, 
-                                                     continueArticle,
-                                                     true);
+                final String jsonText = 
+                        downloader.downloadJson(articleTitle, 
+                                                continueArticle,
+                                                true);
                 
                 JsonObject root = GSON.fromJson(jsonText, JsonObject.class);
                 JsonObject nextContinueArticleJsonObject = 
@@ -87,7 +92,9 @@ extends AbstractWikipediaGraphNodeExpander {
                             StandardCharsets.UTF_8.toString())
                             .replace("+", "_");
 
-                    linkNameList.add(constructFullWikipediaLink(title));
+                    linkNameList.add(
+                            downloader.constructFullWikipediaLink(title, 
+                                    languageISOCode));
                 }
                 
                 if (exitRequested) {

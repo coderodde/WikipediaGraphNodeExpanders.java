@@ -1,5 +1,6 @@
-package com.github.coderodde.wikipedia.graph.expansion;
+package io.github.coderodde.wikipedia.graph.expansion;
 
+import io.github.coderodde.wikipedia.graph.expansion.ForwardWikipediaGraphNodeExpander;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -13,8 +14,8 @@ public class ForwardWikipediaGraphNodeExpanderTest {
         nodeExpander = 
                 new ForwardWikipediaGraphNodeExpander("en");
         
-        assertTrue(nodeExpander.isValidNode("Disc_jockey"));
-        assertTrue(!nodeExpander.getNeighbors("Disc_jockey").isEmpty());
+        assertTrue(nodeExpander.isValidNode("Life"));
+        assertTrue(!nodeExpander.getNeighbors("Life").isEmpty());
         
         try {
             assertFalse(nodeExpander.isValidNode("Disc_jfdsfsockey"));
@@ -32,8 +33,13 @@ public class ForwardWikipediaGraphNodeExpanderTest {
         }
     }
     
-    @Test(expected = Exception.class)
+    @Test
     public void testOnBadWikipediaCountryCode() {
-        new ForwardWikipediaGraphNodeExpander("shit");
+        try {
+            new ForwardWikipediaGraphNodeExpander("bad-country-code");
+            fail("Should have thrown Exception on bad-country-code");
+        } catch (final Exception ex) {
+            
+        }
     }
 }
