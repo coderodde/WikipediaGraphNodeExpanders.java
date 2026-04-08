@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.coderodde.wikipedia.graph.expansion</groupId>
+    <groupId>io.github.coderodde.wikipedia.graph.expansion</groupId>
     <artifactId>WikipediaGraphNodeExpanders.java</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
@@ -33,11 +33,11 @@
         </dependency>
         
         <dependency>
-            <groupId>com.github.coderodde.faulty-graph-pathfinder</groupId>
-            <artifactId>ThreadPoolBidirectionalBFSPathFinder.java</artifactId>
-            <version>1.0.0</version>
+            <groupId>io.github.coderodde.graph.pathfinding.delayed</groupId>
+            <artifactId>ThreadPoolBidirectionalBFSPathFinder</artifactId>
+            <version>1.1.0</version>
         </dependency>
-        
+            
         <dependency>
             <groupId>io.github.coderodde.wikipedia.json.downloader</groupId>
             <artifactId>WikipediaDownloader.java</artifactId>
