@@ -3,11 +3,15 @@ package io.github.coderodde.wikipedia.graph.expansion.benchmark;
 import java.util.List;
 import io.github.coderodde.wikipedia.graph.expansion.BackwardWikipediaGraphNodeExpander;
 import io.github.coderodde.wikipedia.graph.expansion.ForwardWikipediaGraphNodeExpander;
+import io.github.coderodde.wikipedia.json.downloader.WikipediaArticleJsonDownloader;
 
 public final class Benchmark {
     
     public static void main(String[] args) throws Exception {
         System.out.println("[Forward expansion]");
+        
+        WikipediaArticleJsonDownloader downloader = 
+                new WikipediaArticleJsonDownloader("en");
         
         long start;
         long end;
@@ -15,7 +19,7 @@ public final class Benchmark {
         start = System.currentTimeMillis();
         
         List<String> forwardLinks = 
-                new ForwardWikipediaGraphNodeExpander("en")
+                new ForwardWikipediaGraphNodeExpander("en", downloader)
                         .getNeighbors("Life");
         
         end = System.currentTimeMillis();
@@ -29,7 +33,7 @@ public final class Benchmark {
         start = System.currentTimeMillis();
        
         List<String> backwardLinks = 
-                new BackwardWikipediaGraphNodeExpander("en")
+                new BackwardWikipediaGraphNodeExpander("en", downloader)
                         .getNeighbors("Life");
         
         end = System.currentTimeMillis();

@@ -1,6 +1,9 @@
 package io.github.coderodde.wikipedia.graph.expansion;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import io.github.coderodde.wikipedia.json.downloader.WikipediaArticleJsonDownloader;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -26,8 +29,12 @@ public abstract class AbstractWikipediaGraphNodeExpander {
     }
     
     protected final String languageISOCode;
+    protected final WikipediaArticleJsonDownloader downloader;
     
-    protected AbstractWikipediaGraphNodeExpander(String languageCode) throws Exception {
+    protected AbstractWikipediaGraphNodeExpander(
+            final String languageCode,
+            final WikipediaArticleJsonDownloader downloader) 
+            throws Exception {
         
         Objects.requireNonNull(languageCode);
         
@@ -38,6 +45,9 @@ public abstract class AbstractWikipediaGraphNodeExpander {
         }
         
         this.languageISOCode = languageCode.toLowerCase();
+        this.downloader = Objects.requireNonNull(
+                downloader,
+                "The input downloader is null.");
         
     }
     
@@ -49,8 +59,18 @@ public abstract class AbstractWikipediaGraphNodeExpander {
      * 
      * @return {@code true} only if the input node is valid.
      */
-    public boolean isValidNode(final String node) {
-        return !getNeighbors(node).isEmpty();
+    public boolean isValidNode(String node) {
+        try {
+            final String json = downloader.getArticlePresenceJson(node);
+            
+            JsonObject root = GSON.fromJson(json, JsonObject.class);
+            JsonObject queryObj = root.getAsJsonObject("query");
+            JsonObject pagesObj = queryObj.getAsJsonObject("pages");
+            return !pagesObj.has("-1");
+            
+        } catch (IOException ex) {
+            return false;
+        }
     }
     
     /**

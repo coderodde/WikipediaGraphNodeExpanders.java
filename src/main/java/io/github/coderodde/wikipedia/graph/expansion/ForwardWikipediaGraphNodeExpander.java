@@ -22,18 +22,15 @@ import java.util.Set;
 public class ForwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
     
-    public ForwardWikipediaGraphNodeExpander(final String languageLocaleName) 
-            throws Exception {
+    public ForwardWikipediaGraphNodeExpander(
+            final String languageCodeName,
+            final WikipediaArticleJsonDownloader downloader) throws Exception {
         
-        super(languageLocaleName);
+        super(languageCodeName, downloader);
     }
     
     @Override
     public List<String> getNeighbors(final String articleTitle) {
-        
-        final WikipediaArticleJsonDownloader downloader = 
-                new WikipediaArticleJsonDownloader(this.languageISOCode);
-        
         try {
             final List<String> linkNameList = new ArrayList<>();
             String continueArticle = null;
@@ -72,6 +69,10 @@ extends AbstractWikipediaGraphNodeExpander {
                             .getAsJsonObject();
 
                 JsonArray linkArray = idObject.getAsJsonArray("links");
+                
+                if (linkArray == null) {
+                    return List.of();
+                }
 
                 for (JsonElement titleElement : linkArray) {
                     int namespace = 
@@ -87,10 +88,14 @@ extends AbstractWikipediaGraphNodeExpander {
                                     .get("title")
                                     .getAsString();
 
+//                    System.out.println("F title before: " + title);
+                    
                     title = URLEncoder.encode(
                             title,
                             StandardCharsets.UTF_8.toString())
                             .replace("+", "_");
+                    
+//                    System.out.println("F title after:  " + title);
 
                     linkNameList.add(
                             downloader.constructFullWikipediaLink(title, 
@@ -102,11 +107,12 @@ extends AbstractWikipediaGraphNodeExpander {
                 }
             }
         } catch (final Exception ex) {
-            throw new RuntimeException(
-                    String.format(
-                            "Forward article \"%s\" failed to expand.", 
-                            articleTitle), 
-                    ex);
+            return null;
+//            throw new RuntimeException(
+//                    String.format(
+//                            "Forward article \"%s\" failed to expand.", 
+//                            articleTitle), 
+//                    ex);
         }
     }
 }

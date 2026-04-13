@@ -21,10 +21,12 @@ import java.util.List;
 public class BackwardWikipediaGraphNodeExpander 
 extends AbstractWikipediaGraphNodeExpander {
     
-    public BackwardWikipediaGraphNodeExpander(final String languageLocaleName)
+    public BackwardWikipediaGraphNodeExpander(
+            final String languageCodeName,
+            final WikipediaArticleJsonDownloader downloader) 
             throws Exception {
         
-        super(languageLocaleName);
+        super(languageCodeName, downloader);
     }
     
     @Override
@@ -71,11 +73,15 @@ extends AbstractWikipediaGraphNodeExpander {
                         String title = element.getAsJsonObject().get("title")
                                 .getAsString();
 
+//                        System.out.println("B Title before: " + title);
+                        
                         title = URLEncoder.encode(
                                 title,
                                 StandardCharsets.UTF_8.toString())
                                 .replace("+", "_");
 
+//                        System.out.println("B Title after:  " + title);
+                        
                         linkNameList.add(
                                 downloader.constructFullWikipediaLink(title,
                                         languageISOCode));
@@ -87,11 +93,12 @@ extends AbstractWikipediaGraphNodeExpander {
                 }
             }
         } catch (final Exception ex) {
-            throw new RuntimeException(
-                    String.format(
-                            "Backward article \"%s\" failed to expand.", 
-                            articleTitle), 
-                    ex);
+            return null;
+//            throw new RuntimeException(
+//                    String.format(
+//                            "Backward article \"%s\" failed to expand.", 
+//                            articleTitle), 
+//                    ex);
         }
     }
 }
