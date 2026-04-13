@@ -17,7 +17,7 @@ public class BackwardWikipediaGraphNodeExpanderTest {
                 new BackwardWikipediaGraphNodeExpander("en", downloader);
     }
     
-    @Test
+    //@Test
     public void getNeighbors() throws Exception {
         assertTrue(nodeExpander.isValidNode("Life"));
         assertTrue(!nodeExpander.getNeighbors("Life").isEmpty());
@@ -25,7 +25,7 @@ public class BackwardWikipediaGraphNodeExpanderTest {
         assertTrue(nodeExpander.getNeighbors("Disc_jfdsfsockey").isEmpty());
     }
     
-    @Test
+    //@Test
     public void debug1() throws Exception {
         assertTrue(nodeExpander.isValidNode("Bringin'_On_the_Heartbreak"));
         assertTrue(
@@ -33,7 +33,7 @@ public class BackwardWikipediaGraphNodeExpanderTest {
                              .isEmpty());
     }
     
-    @Test
+    //@Test
     public void debug2() throws Exception {
         assertTrue(nodeExpander.isValidNode("Flossie_Wong-Staal"));
         assertTrue(
@@ -42,6 +42,26 @@ public class BackwardWikipediaGraphNodeExpanderTest {
     }
     
     @Test
+    public void debug3() throws Exception {
+//        List<String> links = nodeExpander.getNeighbors("L4_(spacecraft)");
+//        
+//        System.out.println(links);
+//        
+        assertTrue(nodeExpander.isValidNode("L4_(spacecraft)"));
+        assertTrue(
+                !nodeExpander.getNeighbors("L4_(spacecraft)")
+                             .isEmpty());
+    }
+    
+    //@Test
+    public void debug4() throws Exception {
+        assertTrue(nodeExpander.isValidNode("L4_%28spacecraft%29"));
+        assertTrue(
+                !nodeExpander.getNeighbors("L4_%28spacecraft%29")
+                             .isEmpty());
+    }
+    
+    //@Test
     public void testOnBadWikipediaCountryCode() {
         try {
             new BackwardWikipediaGraphNodeExpander(

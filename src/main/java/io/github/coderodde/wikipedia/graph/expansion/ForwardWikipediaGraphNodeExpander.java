@@ -87,16 +87,12 @@ extends AbstractWikipediaGraphNodeExpander {
                                     .getAsJsonObject()
                                     .get("title")
                                     .getAsString();
-
-//                    System.out.println("F title before: " + title);
                     
                     title = URLEncoder.encode(
                             title,
                             StandardCharsets.UTF_8.toString())
                             .replace("+", "_");
                     
-//                    System.out.println("F title after:  " + title);
-
                     linkNameList.add(
                             downloader.constructFullWikipediaLink(title, 
                                     languageISOCode));
