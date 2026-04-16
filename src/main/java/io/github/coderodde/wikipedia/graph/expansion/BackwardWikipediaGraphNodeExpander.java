@@ -42,7 +42,7 @@ extends AbstractWikipediaGraphNodeExpander {
 //                    URLEncoder.encode(
 //                        articleTitle, 
 //                        StandardCharsets.UTF_8)
-                    .replace("+", "_");
+                    .replaceAll("\\+ ", "_");
                 
                 final String jsonText = downloader.downloadJson(
                     normalizedTitle, 
