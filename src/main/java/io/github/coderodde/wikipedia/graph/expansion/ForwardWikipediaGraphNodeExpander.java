@@ -88,10 +88,10 @@ extends AbstractWikipediaGraphNodeExpander {
                                     .get("title")
                                     .getAsString();
                     
-                    title = URLEncoder.encode(
-                            title,
-                            StandardCharsets.UTF_8.toString())
-                            .replace("+", "_");
+//                    title = URLEncoder.encode(
+//                            title,
+//                            StandardCharsets.UTF_8.toString())
+//                            .replace("+", "_");
                     
                     linkNameList.add(
                             downloader.constructFullWikipediaLink(title, 

@@ -33,17 +33,34 @@ extends AbstractWikipediaGraphNodeExpander {
     public List<String> getNeighbors(final String articleTitle) {
         try {
             final List<String> linkNameList = new ArrayList<>();
-            final WikipediaArticleJsonDownloader downloader = 
-                    new WikipediaArticleJsonDownloader(languageISOCode);
             
             String continueArticle = null;
             boolean exitRequested = false;
             
             while (true) {
-                final String jsonText = 
-                        downloader.downloadJson(articleTitle,
-                                                continueArticle,
-                                                false);
+                final String normalizedTitle = articleTitle
+//                    URLEncoder.encode(
+//                        articleTitle, 
+//                        StandardCharsets.UTF_8)
+                    .replace("+", "_");
+                
+                final String jsonText = downloader.downloadJson(
+                    normalizedTitle, 
+                    continueArticle, 
+                    false);
+                
+//                final String jsonText = 
+//                        downloader.downloadJson(
+//                                URLEncoder.encode(
+//                                        articleTitle, 
+//                                        StandardCharsets.UTF_8)
+//                                        .replace("+", "_"),
+//                                continueArticle,
+//                                false);
+//                
+//                        downloader.downloadJson(articleTitle,
+//                                                continueArticle,
+//                                                false);
                 
                 JsonObject root = GSON.fromJson(jsonText, JsonObject.class);
                 JsonElement continueJsonElement = root.get("continue");
@@ -73,10 +90,10 @@ extends AbstractWikipediaGraphNodeExpander {
                         String title = element.getAsJsonObject().get("title")
                                 .getAsString();
 
-                        title = URLEncoder.encode(
-                                title,
-                                StandardCharsets.UTF_8.toString())
-                                .replace("+", "_");
+//                        title = URLEncoder.encode(
+//                                title,
+//                                StandardCharsets.UTF_8.toString())
+//                                .replace("+", "_");
 
                         linkNameList.add(
                                 downloader.constructFullWikipediaLink(title,
@@ -89,12 +106,11 @@ extends AbstractWikipediaGraphNodeExpander {
                 }
             }
         } catch (final Exception ex) {
-            return null;
-//            throw new RuntimeException(
-//                    String.format(
-//                            "Backward article \"%s\" failed to expand.", 
-//                            articleTitle), 
-//                    ex);
+            throw new RuntimeException(
+                    String.format(
+                            "Backward article \"%s\" failed to expand.", 
+                            articleTitle), 
+                    ex);
         }
     }
 }

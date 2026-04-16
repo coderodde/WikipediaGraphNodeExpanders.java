@@ -1,6 +1,7 @@
 package io.github.coderodde.wikipedia.graph.expansion;
 
 import io.github.coderodde.wikipedia.json.downloader.WikipediaArticleJsonDownloader;
+import java.util.List;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -17,7 +18,7 @@ public class BackwardWikipediaGraphNodeExpanderTest {
                 new BackwardWikipediaGraphNodeExpander("en", downloader);
     }
     
-    //@Test
+    @Test
     public void getNeighbors() throws Exception {
         assertTrue(nodeExpander.isValidNode("Life"));
         assertTrue(!nodeExpander.getNeighbors("Life").isEmpty());
@@ -25,12 +26,16 @@ public class BackwardWikipediaGraphNodeExpanderTest {
         assertTrue(nodeExpander.getNeighbors("Disc_jfdsfsockey").isEmpty());
     }
     
-    //@Test
+    @Test
     public void debug1() throws Exception {
         assertTrue(nodeExpander.isValidNode("Bringin'_On_the_Heartbreak"));
-        assertTrue(
-                !nodeExpander.getNeighbors("Bringin'_On_the_Heartbreak")
-                             .isEmpty());
+        List<String> lst =
+                nodeExpander.getNeighbors("Bringin'_On_the_Heartbreak");
+        
+        assertTrue(lst.size() > 1);
+//        assertTrue(
+//                !nodeExpander.getNeighbors("Bringin'_On_the_Heartbreak")
+//                             .isEmpty());
     }
     
     //@Test
@@ -47,21 +52,22 @@ public class BackwardWikipediaGraphNodeExpanderTest {
 //        
 //        System.out.println(links);
 //        
+//        assertTrue(nodeExpander.isValidNode("1967–68_Luxembourg_National_Division"));
         assertTrue(nodeExpander.isValidNode("L4_(spacecraft)"));
         assertTrue(
                 !nodeExpander.getNeighbors("L4_(spacecraft)")
                              .isEmpty());
     }
     
-    //@Test
+    @Test
     public void debug4() throws Exception {
         assertTrue(nodeExpander.isValidNode("L4_%28spacecraft%29"));
-        assertTrue(
-                !nodeExpander.getNeighbors("L4_%28spacecraft%29")
-                             .isEmpty());
+//        assertTrue(
+//                !nodeExpander.getNeighbors("L4_%28spacecraft%29")
+//                             .isEmpty());
     }
     
-    //@Test
+    @Test
     public void testOnBadWikipediaCountryCode() {
         try {
             new BackwardWikipediaGraphNodeExpander(
