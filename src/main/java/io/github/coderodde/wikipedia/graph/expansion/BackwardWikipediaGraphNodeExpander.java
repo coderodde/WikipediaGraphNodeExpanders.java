@@ -30,22 +30,22 @@ extends AbstractWikipediaGraphNodeExpander {
     }
     
     @Override
-    public List<String> getNeighbors(final String articleTitle) {
+    public List<String> getNeighbors(String articleTitle) {
         try {
             final List<String> linkNameList = new ArrayList<>();
-            
             String continueArticle = null;
             boolean exitRequested = false;
+            articleTitle = articleTitle.replaceAll("[\\+ ]", "_");
             
             while (true) {
-                final String normalizedTitle = articleTitle
-//                    URLEncoder.encode(
-//                        articleTitle, 
-//                        StandardCharsets.UTF_8)
-                    .replaceAll("\\+ ", "_");
+//                final String normalizedTitle = articleTitle
+////                    URLEncoder.encode(
+////                        articleTitle, 
+////                        StandardCharsets.UTF_8)
+//                    .replaceAll("\\+ ", "_");
                 
                 final String jsonText = downloader.downloadJson(
-                    normalizedTitle, 
+                    articleTitle, 
                     continueArticle, 
                     false);
                 
