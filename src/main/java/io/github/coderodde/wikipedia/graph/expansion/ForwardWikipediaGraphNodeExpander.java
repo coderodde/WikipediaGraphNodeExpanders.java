@@ -87,16 +87,17 @@ extends AbstractWikipediaGraphNodeExpander {
                             titleElement
                                     .getAsJsonObject()
                                     .get("title")
-                                    .getAsString();
+                                    .getAsString()
+                                    .replace(' ', '_');
                     
 //                    title = URLEncoder.encode(
 //                            title,
 //                            StandardCharsets.UTF_8.toString())
 //                            .replace("+", "_");
-                    
-                    linkNameList.add(
-                            downloader.constructFullWikipediaLink(title, 
-                                    languageISOCode));
+                    linkNameList.add(title);
+//                    linkNameList.add(
+//                            downloader.constructFullWikipediaLink(title, 
+//                                    languageISOCode));
                 }
                 
                 if (exitRequested) {

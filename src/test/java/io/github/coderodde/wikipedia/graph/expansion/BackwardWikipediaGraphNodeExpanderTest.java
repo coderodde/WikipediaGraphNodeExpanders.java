@@ -38,7 +38,7 @@ public class BackwardWikipediaGraphNodeExpanderTest {
 //                             .isEmpty());
     }
     
-    //@Test
+    @Test
     public void debug2() throws Exception {
         assertTrue(nodeExpander.isValidNode("Flossie_Wong-Staal"));
         assertTrue(
@@ -65,6 +65,16 @@ public class BackwardWikipediaGraphNodeExpanderTest {
 //        assertTrue(
 //                !nodeExpander.getNeighbors("L4_%28spacecraft%29")
 //                             .isEmpty());
+    }
+    
+    @Test
+    public void debug5() {
+        List<String> backlinks = nodeExpander.getNeighbors("Hiisi");
+        String first = backlinks.getFirst();
+        
+        List<String> next = nodeExpander.getNeighbors(first);
+        System.out.println(next);
+        assertFalse(next.isEmpty());
     }
     
     @Test

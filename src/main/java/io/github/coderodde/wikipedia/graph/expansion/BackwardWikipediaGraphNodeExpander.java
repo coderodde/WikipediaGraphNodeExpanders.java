@@ -86,22 +86,32 @@ extends AbstractWikipediaGraphNodeExpander {
                 for (JsonElement element : pagesArray) {
                     int namespace = element.getAsJsonObject().get("ns").getAsInt();
 
-                    if (namespace == 0) {
-                        String title = element.getAsJsonObject().get("title")
-                                .getAsString();
+                    if (namespace != 0) {
+                        continue;
+                    }
+                    
+                    String title = 
+                        element.getAsJsonObject().get("title")
+                               .getAsString()
+                               .replace(' ', '_');
 
 //                        title = URLEncoder.encode(
 //                                title,
 //                                StandardCharsets.UTF_8.toString())
 //                                .replace("+", "_");
 
-                        linkNameList.add(
-                                downloader.constructFullWikipediaLink(title,
-                                        languageISOCode));
-                    }
+                    linkNameList.add(title);
+//                    linkNameList.add(
+//                            downloader.constructFullWikipediaLink(title,
+//                                    languageISOCode));
                 }
 
                 if (exitRequested) {
+                    System.err.println("[Node count]: " + linkNameList.size());
+                    
+                    if (linkNameList.isEmpty()) {
+                        System.err.println("[SHIT] On " + articleTitle);
+                    }
                     return linkNameList;
                 }
             }
