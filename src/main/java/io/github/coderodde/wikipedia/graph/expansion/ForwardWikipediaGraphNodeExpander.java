@@ -101,6 +101,7 @@ extends AbstractWikipediaGraphNodeExpander {
                 }
                 
                 if (exitRequested) {
+//                    System.out.println("Forward, (" + articleTitle + ") -> " + linkNameList.subList(0, Math.min(3, linkNameList.size())));
                     return linkNameList;
                 }
             }

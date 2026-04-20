@@ -4,8 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import io.github.coderodde.wikipedia.json.downloader.WikipediaArticleJsonDownloader;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -107,11 +105,7 @@ extends AbstractWikipediaGraphNodeExpander {
                 }
 
                 if (exitRequested) {
-                    System.err.println("[Node count]: " + linkNameList.size());
-                    
-                    if (linkNameList.isEmpty()) {
-                        System.err.println("[SHIT] On " + articleTitle);
-                    }
+//                    System.out.println("Backward, (" + articleTitle + ") -> " + linkNameList.subList(0, Math.min(3, linkNameList.size())));
                     return linkNameList;
                 }
             }
